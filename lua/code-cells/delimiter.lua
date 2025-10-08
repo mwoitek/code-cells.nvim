@@ -19,6 +19,10 @@ endfunction
 local function find_matching_lines(pattern, first_line, last_line)
   first_line = first_line or 1
   last_line = last_line or vim.api.nvim_buf_line_count(0)
+
+  local range = require "code-cells.range"
+  if not range.is_valid(first_line, last_line) then return end
+
   local line_nums = vim.fn.CellsFindMatchingLines(pattern, first_line, last_line) ---@type integer[]
   return #line_nums > 0 and line_nums or nil
 end
@@ -31,6 +35,14 @@ end
 ---@return integer?
 function M.find_nth(dir, n, opts)
   n = n or 1
+  if n == 0 then
+    local msg = "n must be non-zero"
+    error(msg)
+  elseif n < 0 then
+    dir = dir == "up" and "down" or "up"
+    n = -n
+  end
+
   opts = opts or {}
 
   -- TODO: generalize the code for getting the cell delimiter
@@ -47,9 +59,6 @@ function M.find_nth(dir, n, opts)
     first_line = curr_line + 1
     last_line = vim.api.nvim_buf_line_count(0)
   end
-
-  local range = require "code-cells.range"
-  if not range.is_valid(first_line, last_line) then return end
 
   local line_nums = find_matching_lines(delim_pattern, first_line, last_line)
   if not line_nums then return end
