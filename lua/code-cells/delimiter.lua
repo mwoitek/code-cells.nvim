@@ -29,10 +29,10 @@ end
 -- }}}
 
 -- Find n-th delimiter {{{
----@param dir cells.Direction
----@param n integer?
----@param opts cells.FindOpts?
----@return integer?
+---@param dir cells.Direction Search direction
+---@param n integer? Ordinality (e.g, n=2 is second)
+---@param opts cells.FindOpts? Search options
+---@return integer? # Number of line containing the delimiter
 function M.find_nth(dir, n, opts)
   n = n or 1
   if n == 0 then
