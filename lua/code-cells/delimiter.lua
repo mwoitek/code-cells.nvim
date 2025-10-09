@@ -1,5 +1,45 @@
 local M = {}
 
+-- Get delimiter {{{
+---@param filetype string
+---@return string? # User-defined cell delimiter for the given filetype
+local function get_user_delimiter(filetype)
+  if filetype == "" then return end
+  local name = string.format("%s_delim", filetype)
+  for _, vars in ipairs { vim.b, vim.g } do
+    local var = vars[name]
+    if type(var) == "string" then return var end
+  end
+end
+
+---@param commentstring string
+---@return string? # Cell delimiter built from commentstring
+local function build_delimiter(commentstring)
+  return commentstring:find "%%s" and commentstring:format "%%" or nil
+end
+
+---@return string? # Cell delimiter
+function M.get()
+  local delim = get_user_delimiter(vim.bo.filetype) or build_delimiter(vim.bo.commentstring)
+  if not delim then
+    local msg = "[code-cells] Current buffer does not have a valid delimiter"
+    vim.notify(msg, vim.log.levels.WARN)
+  end
+  return delim
+end
+-- }}}
+
+-- Get delimiter pattern {{{
+---@param delimiter string? Cell delimiter
+---@return string? # Vimscript regex that matches the given cell delimiter
+function M.get_pattern(delimiter)
+  delimiter = delimiter or M.get()
+  vim.validate("delimiter", delimiter, "string", true)
+  if not delimiter then return end
+  return [[\V\^]] .. vim.fn.escape(delimiter, [[\/?]]):gsub("%s+", [[\s\*]])
+end
+-- }}}
+
 -- Find lines that match a pattern {{{
 vim.cmd [[
 function! CellsFindMatchingLines(pattern, first_line, last_line)
@@ -45,8 +85,8 @@ function M.find_nth(dir, n, opts)
 
   opts = opts or {}
 
-  -- TODO: generalize the code for getting the cell delimiter
-  local delim_pattern = "^# %%"
+  local delim_pattern = M.get_pattern()
+  if not delim_pattern then return end
 
   local first_line ---@type integer
   local last_line ---@type integer
