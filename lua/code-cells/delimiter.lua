@@ -85,8 +85,8 @@ function M.find_nth(dir, n, opts)
 
   opts = opts or {}
 
-  -- TODO: generalize the code for getting the cell delimiter
-  local delim_pattern = "^# %%"
+  local delim_pattern = M.get_pattern()
+  if not delim_pattern then return end
 
   local first_line ---@type integer
   local last_line ---@type integer
