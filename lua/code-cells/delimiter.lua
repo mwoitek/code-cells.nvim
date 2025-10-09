@@ -29,6 +29,17 @@ function M.get()
 end
 -- }}}
 
+-- Get delimiter pattern {{{
+---@param delimiter string? Cell delimiter
+---@return string? # Vimscript regex that matches the given cell delimiter
+function M.get_pattern(delimiter)
+  delimiter = delimiter or M.get()
+  vim.validate("delimiter", delimiter, "string", true)
+  if not delimiter then return end
+  return [[\V\^]] .. vim.fn.escape(delimiter, [[\/?]]):gsub("%s+", [[\s\*]])
+end
+-- }}}
+
 -- Find lines that match a pattern {{{
 vim.cmd [[
 function! CellsFindMatchingLines(pattern, first_line, last_line)
