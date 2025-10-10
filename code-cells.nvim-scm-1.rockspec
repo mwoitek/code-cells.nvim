@@ -3,7 +3,6 @@ package = "code-cells.nvim"
 version = "scm-1"
 
 test_dependencies = {
-  "lua >= 5.1",
   "nlua",
 }
 
@@ -13,4 +12,7 @@ source = {
 
 build = {
   type = "builtin",
+  copy_directories = {
+    "plugin",
+  },
 }
