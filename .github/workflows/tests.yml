@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - test/setup-#5 # TODO: remove after testing
 
 jobs:
   build:
@@ -17,8 +16,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-        with: # TODO: remove after testing
-          ref: test/setup-#5
       - name: Run tests
         uses: lumen-oss/nvim-busted-action@v1
         with:
