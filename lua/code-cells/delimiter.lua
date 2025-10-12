@@ -1,5 +1,7 @@
 local M = {}
 
+local valid = require "code-cells.validation"
+
 -- Get delimiter {{{
 ---@param filetype string
 ---@return string? # User-defined cell delimiter for the given filetype
@@ -33,7 +35,7 @@ end
 ---@param delimiter string? Cell delimiter
 ---@return string? # Vimscript regex that matches the given cell delimiter
 function M.get_pattern(delimiter)
-  delimiter = delimiter or M.get()
+  if delimiter == nil then delimiter = M.get() end
   vim.validate("delimiter", delimiter, "string", true)
   if not delimiter then return end
   return [[\V\^]] .. vim.fn.escape(delimiter, [[\/?]]):gsub("%s+", [[\s\*]])
@@ -57,8 +59,8 @@ endfunction
 ---@param last_line integer? Last line of the search region
 ---@return integer[]? # Lines where there is a match or nil if no match was found
 local function find_matching_lines(pattern, first_line, last_line)
-  first_line = first_line or 1
-  last_line = last_line or vim.api.nvim_buf_line_count(0)
+  if first_line == nil then first_line = 1 end
+  if last_line == nil then last_line = vim.api.nvim_buf_line_count(0) end
 
   local range = require "code-cells.range"
   if not range.is_valid(first_line, last_line) then return end
@@ -74,16 +76,20 @@ end
 ---@param opts cells.FindOpts? Search options
 ---@return integer? # Number of line containing the delimiter
 function M.find_nth(dir, n, opts)
-  n = n or 1
-  if n == 0 then
-    local msg = "n must be non-zero"
-    error(msg)
-  elseif n < 0 then
+  -- NOTE: I won't bother with the validation of dir, since this parameter will
+  -- be removed when I refactor this function.
+
+  if n == nil then n = 1 end
+  vim.validate("n", n, valid.non_zero_integer, "non-zero integer")
+
+  -- TODO: implement more robust validation for such tables
+  vim.validate("opts", opts, "table", true)
+  opts = opts or {}
+
+  if n < 0 then
     dir = dir == "up" and "down" or "up"
     n = -n
   end
-
-  opts = opts or {}
 
   local delim_pattern = M.get_pattern()
   if not delim_pattern then return end
