@@ -18,7 +18,7 @@ describe("code-cells.jump", function()
     it("throws an error when the argument type is wrong", function()
       local s = spy.on(valid, "non_zero_integer")
       local invalid_input = {
-        -- boolean = false, -- FIXME: This should not fail
+        boolean = false,
         float = 3.14,
         string = "NO",
         table = { ok = false },

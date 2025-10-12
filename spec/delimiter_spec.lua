@@ -18,7 +18,7 @@ describe("code-cells.delimiter", function()
   describe(".get_pattern()", function()
     it("throws an error when the argument type is wrong", function()
       local invalid_input = {
-        -- boolean = false, -- FIXME: This should not fail
+        boolean = false,
         number = 15,
         table = { wrong = true },
       }
