@@ -35,14 +35,16 @@ end
 ---@param delimiter string? Cell delimiter
 ---@return string? # Vimscript regex that matches the given cell delimiter
 function M.get_pattern(delimiter)
-  if delimiter == nil then delimiter = M.get() end
   vim.validate("delimiter", delimiter, "string", true)
-  if not delimiter then return end
+  if not delimiter then
+    delimiter = M.get()
+    if not delimiter then return end
+  end
   return [[\V\^]] .. vim.fn.escape(delimiter, [[\/?]]):gsub("%s+", [[\s\*]])
 end
 -- }}}
 
--- Find lines that match a pattern {{{
+-- Find delimiters in a given region {{{
 ---@param pattern string Vimscript regex
 ---@param first_line integer? First line of the search region
 ---@param last_line integer? Last line of the search region
@@ -79,6 +81,21 @@ local function find_matching_lines(pattern, first_line, last_line, max_matches)
 
   return #matches > 0 and matches or nil
 end
+
+---@param delimiter string? Cell delimiter
+---@param first_line integer? First line of the search region
+---@param last_line integer? Last line of the search region
+---@param max_matches integer? Maximum number of matches
+---@return integer[]? # Lines where there is a match, or nil if no match was found
+function M.find(delimiter, first_line, last_line, max_matches)
+  local delim_pattern = M.get_pattern(delimiter)
+  if not delim_pattern then return end
+  return find_matching_lines(delim_pattern, first_line, last_line, max_matches)
+end
+
+---@param delimiter string? Cell delimiter
+---@return integer[]? # Lines where there is a match, or nil if no match was found
+function M.find_all(delimiter) return M.find(delimiter) end
 -- }}}
 
 -- Find n-th delimiter {{{
