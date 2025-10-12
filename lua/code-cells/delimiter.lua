@@ -43,30 +43,41 @@ end
 -- }}}
 
 -- Find lines that match a pattern {{{
-vim.cmd [[
-function! CellsFindMatchingLines(pattern, first_line, last_line)
-  let line_nums = []
-  let view = winsaveview()
-  execute 'sil! keepj keepp ' . a:first_line . ',' . a:last_line . 'g/' .
-          \ a:pattern . "/call add(line_nums, line('.'))"
-  call winrestview(view)
-  return line_nums
-endfunction
-]]
-
 ---@param pattern string Vimscript regex
 ---@param first_line integer? First line of the search region
 ---@param last_line integer? Last line of the search region
----@return integer[]? # Lines where there is a match or nil if no match was found
-local function find_matching_lines(pattern, first_line, last_line)
+---@param max_matches integer? Maximum number of matches
+---@return integer[]? # Lines where there is a match, or nil if no match was found
+local function find_matching_lines(pattern, first_line, last_line, max_matches)
+  vim.validate("pattern", pattern, "string")
+
   if first_line == nil then first_line = 1 end
-  if last_line == nil then last_line = vim.api.nvim_buf_line_count(0) end
+  local line_count ---@type integer?
+  if last_line == nil then
+    line_count = vim.api.nvim_buf_line_count(0)
+    last_line = line_count
+  end
 
   local range = require "code-cells.range"
   if not range.is_valid(first_line, last_line) then return end
 
-  local line_nums = vim.fn.CellsFindMatchingLines(pattern, first_line, last_line) ---@type integer[]
-  return #line_nums > 0 and line_nums or nil
+  vim.validate("max_matches", max_matches, valid.positive_integer, true)
+  if not max_matches then
+    line_count = line_count or vim.api.nvim_buf_line_count(0)
+    max_matches = line_count + 1
+  end
+
+  local matches = {} ---@type integer[]
+  local regex = vim.regex(pattern)
+  local line = first_line
+
+  while line <= last_line and #matches < max_matches do
+    local start = regex:match_line(0, line - 1)
+    if type(start) == "number" then matches[#matches + 1] = line end
+    line = line + 1
+  end
+
+  return #matches > 0 and matches or nil
 end
 -- }}}
 
