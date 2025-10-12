@@ -4,6 +4,7 @@ read_globals = {
   "describe",
   "it",
   "setup",
+  "spy",
   "teardown",
 }
 ignore = { "631" }

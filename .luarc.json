@@ -5,6 +5,7 @@
     "describe",
     "it",
     "setup",
+    "spy",
     "teardown",
     "vim"
   ],
