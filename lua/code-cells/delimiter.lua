@@ -113,30 +113,36 @@ function M.find_nth(delimiter, n, opts)
   vim.validate("opts", opts, "table", true)
   opts = opts or {}
 
-  local up = n > 0
+  local regex = vim.regex(delim_pattern)
+  local incr = n < 0 and -1 or 1
   n = math.abs(n)
 
-  local first_line = nil ---@type integer?
-  local last_line = nil ---@type integer?
+  local line = vim.fn.line "."
+  local is_ok ---@type fun(l: integer): boolean
 
-  local curr_line = vim.fn.line "."
-  if up then
-    last_line = opts.include_curr and curr_line or curr_line - 1
-    if last_line == 0 then return end
+  if incr < 0 then
+    line = opts.include_curr and line or line - 1
+    if line == 0 then return end
+    is_ok = function(l) return l >= 1 end
   else
-    if curr_line == vim.fn.line "$" then return end
-    first_line = curr_line + 1
+    local last_line = vim.fn.line "$"
+    if last_line == line then return end
+    line = line + 1
+    is_ok = function(l) return l <= last_line end
   end
 
-  local line_nums = find_matching_lines(delim_pattern, first_line, last_line)
-  if not line_nums then return end
+  local last_match = nil ---@type integer?
 
-  local line_count = #line_nums
-  if line_count < n then
-    if not opts.allow_less then return end
-    return up and line_nums[1] or line_nums[line_count]
+  while n > 0 and is_ok(line) do
+    local start = regex:match_line(0, line - 1)
+    if type(start) == "number" then
+      last_match = line
+      n = n - 1
+    end
+    line = line + incr
   end
-  return up and line_nums[line_count - n + 1] or line_nums[n]
+
+  if n == 0 or opts.allow_less then return last_match end
 end
 -- }}}
 
