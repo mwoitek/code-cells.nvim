@@ -14,25 +14,10 @@ describe("code-cells.jump", function()
     valid = nil
   end)
 
-  describe(".jump_to_prev()", function()
-    it("throws an error when the argument type is wrong", function()
+  describe(".to_next()", function()
+    it("throws an error when the type of `count` is wrong", function()
       local s = spy.on(valid, "non_zero_integer")
-      local invalid_input = {
-        boolean = false,
-        float = 3.14,
-        string = "NO",
-        table = { ok = false },
-      }
-      for _, count in pairs(invalid_input) do
-        assert.has_error(function() jump.jump_to_prev(count) end)
-        assert.spy(s).was_called_with(count)
-      end
-    end)
-  end)
-
-  describe(".jump_to_next()", function()
-    it("throws an error when the argument type is wrong", function()
-      local s = spy.on(valid, "non_zero_integer")
+      local delimiter = "-- %%"
       local invalid_input = {
         boolean = true,
         float = -1.3,
@@ -40,7 +25,7 @@ describe("code-cells.jump", function()
         table = { no = true },
       }
       for _, count in pairs(invalid_input) do
-        assert.has_error(function() jump.jump_to_next(count) end)
+        assert.has_error(function() jump.to_next(delimiter, count) end)
         assert.spy(s).was_called_with(count)
       end
     end)
