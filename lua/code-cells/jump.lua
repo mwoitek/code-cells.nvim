@@ -1,20 +1,18 @@
 local M = {}
 
 -- Jump to cells {{{
----@param dir cells.Direction Jump direction
+---@param delimiter string? Cell delimiter
 ---@param count integer? Number of jumps
-local function jump_to_cell(dir, count)
+function M.to_next(delimiter, count)
   if count == 0 then return end
-  local delimiter = require "code-cells.delimiter"
-  local delim_line = delimiter.find_nth(dir, count, { allow_less = true })
+  local delim = require "code-cells.delimiter"
+  local delim_line = delim.find_nth(delimiter, count, { allow_less = true })
   if delim_line then vim.api.nvim_win_set_cursor(0, { delim_line, 0 }) end
 end
 
+---@param delimiter string? Cell delimiter
 ---@param count integer? Number of jumps
-function M.jump_to_prev(count) jump_to_cell("up", count) end
-
----@param count integer? Number of jumps
-function M.jump_to_next(count) jump_to_cell("down", count) end
+function M.to_prev(delimiter, count) M.to_next(delimiter, -count) end
 -- }}}
 
 return M

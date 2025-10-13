@@ -4,13 +4,13 @@ vim.g.loaded_code_cells = true
 -- Jump to cells {{{
 vim.keymap.set(
   { "n", "o", "x" },
-  "<Plug>(CellsJumpPrev)",
-  function() require("code-cells.jump").jump_to_prev(vim.v.count1) end
+  "<Plug>(CellsJumpNext)",
+  function() require("code-cells.jump").to_next(nil, vim.v.count1) end
 )
 vim.keymap.set(
   { "n", "o", "x" },
-  "<Plug>(CellsJumpNext)",
-  function() require("code-cells.jump").jump_to_next(vim.v.count1) end
+  "<Plug>(CellsJumpPrev)",
+  function() require("code-cells.jump").to_prev(nil, vim.v.count1) end
 )
 -- }}}
 
