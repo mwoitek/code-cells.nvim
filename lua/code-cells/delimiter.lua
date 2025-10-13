@@ -99,39 +99,33 @@ function M.find_all(delimiter) return M.find(delimiter) end
 -- }}}
 
 -- Find n-th delimiter {{{
----@param dir cells.Direction Search direction
----@param n integer? Ordinality (e.g, n=2 is second)
+---@param delimiter string? Cell delimiter
+---@param n integer Search direction and ordinality
 ---@param opts cells.FindOpts? Search options
 ---@return integer? # Number of line containing the delimiter
-function M.find_nth(dir, n, opts)
-  -- NOTE: I won't bother with the validation of dir, since this parameter will
-  -- be removed when I refactor this function.
+function M.find_nth(delimiter, n, opts)
+  local delim_pattern = M.get_pattern(delimiter)
+  if not delim_pattern then return end
 
-  if n == nil then n = 1 end
   vim.validate("n", n, valid.non_zero_integer, "non-zero integer")
 
-  -- TODO: implement more robust validation for such tables
+  -- TODO: Implement more robust validation for such tables
   vim.validate("opts", opts, "table", true)
   opts = opts or {}
 
-  if n < 0 then
-    dir = dir == "up" and "down" or "up"
-    n = -n
-  end
+  local up = n > 0
+  n = math.abs(n)
 
-  local delim_pattern = M.get_pattern()
-  if not delim_pattern then return end
-
-  local first_line ---@type integer
-  local last_line ---@type integer
+  local first_line = nil ---@type integer?
+  local last_line = nil ---@type integer?
 
   local curr_line = vim.fn.line "."
-  if dir == "up" then
-    first_line = 1
+  if up then
     last_line = opts.include_curr and curr_line or curr_line - 1
+    if last_line == 0 then return end
   else
+    if curr_line == vim.fn.line "$" then return end
     first_line = curr_line + 1
-    last_line = vim.api.nvim_buf_line_count(0)
   end
 
   local line_nums = find_matching_lines(delim_pattern, first_line, last_line)
@@ -140,9 +134,9 @@ function M.find_nth(dir, n, opts)
   local line_count = #line_nums
   if line_count < n then
     if not opts.allow_less then return end
-    return dir == "up" and line_nums[1] or line_nums[line_count]
+    return up and line_nums[1] or line_nums[line_count]
   end
-  return dir == "up" and line_nums[line_count - n + 1] or line_nums[n]
+  return up and line_nums[line_count - n + 1] or line_nums[n]
 end
 -- }}}
 
