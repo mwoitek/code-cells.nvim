@@ -1,7 +1,5 @@
 local M = {}
 
-local valid = require "code-cells.validation"
-
 -- Get delimiter {{{
 ---@param filetype string
 ---@return string? # User-defined cell delimiter for the given filetype
@@ -53,6 +51,7 @@ function M.find(delimiter, first_line, last_line)
   local delim_pattern = M.get_pattern(delimiter)
   if not delim_pattern then return end
 
+  local valid = require "code-cells.core.validation"
   vim.validate("first_line", first_line, valid.positive_integer, "positive integer")
   vim.validate("last_line", last_line, valid.positive_integer, "positive integer")
 
@@ -95,6 +94,7 @@ function M.find_nth(delimiter, n, opts)
   local delim_pattern = M.get_pattern(delimiter)
   if not delim_pattern then return end
 
+  local valid = require "code-cells.core.validation"
   vim.validate("n", n, valid.non_zero_integer, "non-zero integer")
 
   vim.validate("opts", opts, "table", true)
