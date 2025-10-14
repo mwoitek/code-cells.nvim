@@ -46,8 +46,9 @@ end
 ---@param delimiter string? Cell delimiter
 ---@param first_line integer First line of the search region
 ---@param last_line integer Last line of the search region (inclusive)
+---@param max_matches integer? Maximum number of matches
 ---@return integer[]? # Lines where there is a match, or nil if no match was found
-function M.find(delimiter, first_line, last_line)
+function M.find(delimiter, first_line, last_line, max_matches)
   local delim_pattern = M.get_pattern(delimiter)
   if not delim_pattern then return end
 
@@ -55,25 +56,43 @@ function M.find(delimiter, first_line, last_line)
   vim.validate("first_line", first_line, valid.positive_integer, "positive integer")
   vim.validate("last_line", last_line, valid.positive_integer, "positive integer")
 
-  local regex = vim.regex(delim_pattern)
-  local reverse = false
+  vim.validate("max_matches", max_matches, valid.positive_integer, true, "positive integer")
 
-  if first_line > last_line then
-    first_line, last_line = last_line, first_line
-    reverse = true
+  local line_count = nil ---@type integer?
+  if not max_matches then
+    line_count = vim.api.nvim_buf_line_count(0)
+    max_matches = line_count + 1
   end
-  last_line = math.min(last_line, vim.api.nvim_buf_line_count(0))
+
+  local regex = vim.regex(delim_pattern)
+
+  local min_line = first_line
+  local max_line = last_line
+  local incr = 1
+  if min_line > max_line then
+    min_line, max_line = max_line, min_line
+    incr = -1
+  end
+  line_count = line_count or vim.api.nvim_buf_line_count(0)
+  max_line = math.min(max_line, line_count)
 
   local matches = {} ---@type integer[]
 
-  for line = first_line, last_line do
-    local start = regex:match_line(0, line - 1)
-    if type(start) == "number" then matches[#matches + 1] = line end
+  local iter_first = min_line
+  local iter_last = max_line
+  if incr < 0 then
+    iter_first, iter_last = iter_last, iter_first
   end
 
-  if #matches == 0 then return end
-  if reverse then table.sort(matches, function(x, y) return x > y end) end
-  return matches
+  for line = iter_first, iter_last, incr do
+    local start = regex:match_line(0, line - 1)
+    if type(start) == "number" then
+      matches[#matches + 1] = line
+      if #matches == max_matches then break end
+    end
+  end
+
+  return #matches > 0 and matches or nil
 end
 
 ---@param delimiter string? Cell delimiter
