@@ -158,8 +158,9 @@ function M.find_all(delimiter) return M.find(delimiter) end
 
 -- Find n-th delimiter {{{
 ---@class cells.delimiter.FindNthOpts
+---@field line integer? Reference line
+---@field include_line boolean? Include reference line?
 ---@field allow_less boolean? Allow less matches than expected?
----@field include_curr boolean? Include current line?
 
 ---@param delimiter string? Cell delimiter
 ---@param n integer Search direction and ordinality
@@ -175,29 +176,31 @@ function M.find_nth(delimiter, n, opts)
   vim.validate("opts", opts, "table", true)
   if opts then
     vim.validate("allow_less", opts.allow_less, "boolean", true)
-    vim.validate("include_curr", opts.include_curr, "boolean", true)
+    vim.validate("include_line", opts.include_line, "boolean", true)
+    vim.validate("line", opts.line, valid.positive_integer, true, "positive integer")
   end
   opts = vim.tbl_extend("keep", opts or {}, {
+    line = fn.line ".",
+    include_line = false,
     allow_less = false,
-    include_curr = false,
   })
 
   local regex = vim.regex(delim_pattern)
   local incr = n < 0 and -1 or 1
   n = math.abs(n)
 
-  local line = fn.line "."
+  local line_count = api.nvim_buf_line_count(0)
+  local line = math.min(opts.line, line_count)
   local is_ok ---@type fun(l: integer): boolean
 
   if incr < 0 then
-    line = opts.include_curr and line or line - 1
+    line = opts.include_line and line or line - 1
     if line == 0 then return end
     is_ok = function(l) return l >= 1 end
   else
-    local last_line = fn.line "$"
-    if last_line == line then return end
+    if line == line_count then return end
     line = line + 1
-    is_ok = function(l) return l <= last_line end
+    is_ok = function(l) return l <= line_count end
   end
 
   local last_match = nil ---@type integer?
