@@ -95,6 +95,36 @@ function M.find(delimiter, first_line, last_line, max_matches)
   return #matches > 0 and matches or nil
 end
 
+---@class cells.delimiter.FindOpts
+---@field line integer? Reference line
+---@field include_line boolean? Include reference line?
+---@field max_matches integer? Maximum number of matches
+
+---@param delimiter string? Cell delimiter
+---@param opts cells.delimiter.FindOpts? Search options
+---@return integer[]? # Lines where there is a match, or nil if no match was found
+function M.find_above(delimiter, opts)
+  vim.validate("opts", opts, "table", true)
+  if opts then
+    vim.validate("include_line", opts.include_line, "boolean", true)
+    local valid = require "code-cells.core.validation"
+    vim.validate("line", opts.line, valid.positive_integer, true, "positive integer")
+  end
+
+  local line_count = vim.api.nvim_buf_line_count(0)
+  opts = vim.tbl_extend("keep", opts or {}, {
+    line = vim.fn.line ".",
+    include_line = false,
+    max_matches = line_count + 1,
+  })
+  opts.line = math.min(opts.line, line_count)
+
+  local last_line = opts.include_line and opts.line or opts.line - 1
+  if last_line == 0 then return end
+
+  return M.find(delimiter, last_line, 1, opts.max_matches)
+end
+
 ---@param delimiter string? Cell delimiter
 ---@return integer[]? # Lines where there is a match, or nil if no match was found
 function M.find_all(delimiter) return M.find(delimiter) end
