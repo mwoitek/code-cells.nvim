@@ -1,5 +1,8 @@
 local M = {}
 
+local api = vim.api
+local fn = vim.fn
+
 -- Get delimiter {{{
 ---@param filetype string
 ---@return string? # User-defined cell delimiter for the given filetype
@@ -38,7 +41,7 @@ function M.get_pattern(delimiter)
     delimiter = M.get()
     if not delimiter then return end
   end
-  return [[\V\^]] .. vim.fn.escape(delimiter, [[\/?]]):gsub("%s+", [[\s\*]])
+  return [[\V\^]] .. fn.escape(delimiter, [[\/?]]):gsub("%s+", [[\s\*]])
 end
 -- }}}
 
@@ -60,26 +63,24 @@ function M.find(delimiter, first_line, last_line, max_matches)
 
   local line_count = nil ---@type integer?
   if not max_matches then
-    line_count = vim.api.nvim_buf_line_count(0)
+    line_count = api.nvim_buf_line_count(0)
     max_matches = line_count + 1
   end
 
   local regex = vim.regex(delim_pattern)
 
-  local min_line = first_line
-  local max_line = last_line
+  local min_line, max_line = first_line, last_line
   local incr = 1
   if min_line > max_line then
     min_line, max_line = max_line, min_line
     incr = -1
   end
-  line_count = line_count or vim.api.nvim_buf_line_count(0)
+  line_count = line_count or api.nvim_buf_line_count(0)
   max_line = math.min(max_line, line_count)
 
   local matches = {} ---@type integer[]
 
-  local iter_first = min_line
-  local iter_last = max_line
+  local iter_first, iter_last = min_line, max_line
   if incr < 0 then
     iter_first, iter_last = iter_last, iter_first
   end
@@ -111,9 +112,9 @@ function M.find_above(delimiter, opts)
     vim.validate("line", opts.line, valid.positive_integer, true, "positive integer")
   end
 
-  local line_count = vim.api.nvim_buf_line_count(0)
+  local line_count = api.nvim_buf_line_count(0)
   opts = vim.tbl_extend("keep", opts or {}, {
-    line = vim.fn.line ".",
+    line = fn.line ".",
     include_line = false,
     max_matches = line_count + 1,
   })
@@ -136,9 +137,9 @@ function M.find_below(delimiter, opts)
     vim.validate("line", opts.line, valid.positive_integer, true, "positive integer")
   end
 
-  local line_count = vim.api.nvim_buf_line_count(0)
+  local line_count = api.nvim_buf_line_count(0)
   opts = vim.tbl_extend("keep", opts or {}, {
-    line = vim.fn.line ".",
+    line = fn.line ".",
     include_line = false,
     max_matches = line_count + 1,
   })
@@ -185,7 +186,7 @@ function M.find_nth(delimiter, n, opts)
   local incr = n < 0 and -1 or 1
   n = math.abs(n)
 
-  local line = vim.fn.line "."
+  local line = fn.line "."
   local is_ok ---@type fun(l: integer): boolean
 
   if incr < 0 then
@@ -193,7 +194,7 @@ function M.find_nth(delimiter, n, opts)
     if line == 0 then return end
     is_ok = function(l) return l >= 1 end
   else
-    local last_line = vim.fn.line "$"
+    local last_line = fn.line "$"
     if last_line == line then return end
     line = line + 1
     is_ok = function(l) return l <= last_line end
