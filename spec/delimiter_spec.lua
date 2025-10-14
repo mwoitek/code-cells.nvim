@@ -1,12 +1,6 @@
 ---@diagnostic disable: param-type-mismatch, undefined-field
 
----@param s string
----@param pattern string
----@return boolean
-local function str_contains(s, pattern)
-  local start = string.find(s, pattern)
-  return type(start) == "number"
-end
+local helpers = require "spec.helpers"
 
 describe("code-cells.delimiter", function()
   local delimiter
@@ -26,7 +20,7 @@ describe("code-cells.delimiter", function()
         -- TODO: Extract this logic into a new function
         local ok, err_msg = pcall(delimiter.get_pattern, delim)
         assert.is_false(ok)
-        local msg_ok = str_contains(err_msg, ": expected string, got ")
+        local msg_ok = helpers.str_contains(err_msg, ": expected string, got ")
         assert.is_true(msg_ok)
       end
     end)
