@@ -83,9 +83,13 @@ function M.find_all(delimiter) return M.find(delimiter) end
 -- }}}
 
 -- Find n-th delimiter {{{
+---@class cells.delimiter.FindNthOpts
+---@field allow_less boolean? Allow less matches than expected?
+---@field include_curr boolean? Include current line?
+
 ---@param delimiter string? Cell delimiter
 ---@param n integer Search direction and ordinality
----@param opts cells.FindOpts? Search options
+---@param opts cells.delimiter.FindNthOpts? Search options
 ---@return integer? # Number of line containing the delimiter
 function M.find_nth(delimiter, n, opts)
   local delim_pattern = M.get_pattern(delimiter)
@@ -93,9 +97,15 @@ function M.find_nth(delimiter, n, opts)
 
   vim.validate("n", n, valid.non_zero_integer, "non-zero integer")
 
-  -- TODO: Implement more robust validation for such tables
   vim.validate("opts", opts, "table", true)
-  opts = opts or {}
+  if opts then
+    vim.validate("allow_less", opts.allow_less, "boolean", true)
+    vim.validate("include_curr", opts.include_curr, "boolean", true)
+  end
+  opts = vim.tbl_extend("keep", opts or {}, {
+    allow_less = false,
+    include_curr = false,
+  })
 
   local regex = vim.regex(delim_pattern)
   local incr = n < 0 and -1 or 1
