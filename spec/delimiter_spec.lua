@@ -1,6 +1,8 @@
 local assert = require "luassert"
 local helpers = require "spec.helpers"
 
+local api = vim.api
+
 describe("code-cells.api.delimiter", function()
   local delimiter = require "code-cells.api.delimiter"
 
@@ -21,14 +23,12 @@ describe("code-cells.api.delimiter", function()
   end)
 
   describe(".find()", function()
-    local find = delimiter.find
-
     it("finds every match in a valid range", function()
       helpers.edit_file "01.py"
       helpers.source_ftplugin()
       local first_line = 3
       local last_line = 20
-      local matches = find(nil, first_line, last_line)
+      local matches = delimiter.find(nil, first_line, last_line)
       local exp_matches = { 5, 10, 15 }
       assert.are.same(matches, exp_matches)
     end)
@@ -39,7 +39,7 @@ describe("code-cells.api.delimiter", function()
       local first_line = 2
       local last_line = 10
       local max_matches = 1
-      local matches = find(nil, first_line, last_line, max_matches)
+      local matches = delimiter.find(nil, first_line, last_line, max_matches)
       local exp_matches = { 4 }
       assert.are.same(matches, exp_matches)
     end)
@@ -49,7 +49,7 @@ describe("code-cells.api.delimiter", function()
       helpers.source_ftplugin()
       local first_line = 5
       local last_line = 8
-      local matches = find(nil, first_line, last_line)
+      local matches = delimiter.find(nil, first_line, last_line)
       assert.is_nil(matches)
     end)
 
@@ -58,7 +58,7 @@ describe("code-cells.api.delimiter", function()
       helpers.source_ftplugin()
       local first_line = 16
       local last_line = 1
-      local matches = find(nil, first_line, last_line)
+      local matches = delimiter.find(nil, first_line, last_line)
       local exp_matches = { 15, 4, 1 }
       assert.are.same(matches, exp_matches)
     end)
@@ -69,7 +69,7 @@ describe("code-cells.api.delimiter", function()
       helpers.edit_file "05.js"
       helpers.source_ftplugin()
       local init_pos = { 15, 4 }
-      vim.api.nvim_win_set_cursor(0, init_pos)
+      api.nvim_win_set_cursor(0, init_pos)
       local matches = delimiter.find_above()
       local exp_matches = { 4, 1 }
       assert.are.same(matches, exp_matches)
@@ -78,7 +78,7 @@ describe("code-cells.api.delimiter", function()
     it("finds every match above the current line when the delimiter is explicitly given", function()
       helpers.edit_file "02.R"
       local init_pos = { 24, 4 }
-      vim.api.nvim_win_set_cursor(0, init_pos)
+      api.nvim_win_set_cursor(0, init_pos)
       local delim = "# %%"
       local matches = delimiter.find_above(delim)
       local exp_matches = { 23, 4, 1 }
@@ -122,7 +122,7 @@ describe("code-cells.api.delimiter", function()
       helpers.edit_file "06.clj"
       helpers.source_ftplugin()
       local init_pos = { 1, 14 }
-      vim.api.nvim_win_set_cursor(0, init_pos)
+      api.nvim_win_set_cursor(0, init_pos)
       local matches = delimiter.find_above()
       assert.is_nil(matches)
     end)

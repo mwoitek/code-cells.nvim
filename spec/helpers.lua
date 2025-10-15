@@ -2,6 +2,20 @@ local M = {}
 
 local assert = require "luassert"
 
+local api = vim.api
+
+---@param file_name string
+function M.edit_file(file_name)
+  local file_path = vim.fs.joinpath("spec", "fixtures", file_name)
+  vim.cmd.edit(file_path)
+end
+
+function M.unload_buffer()
+  local file_path = api.nvim_buf_get_name(0)
+  if file_path == "" then return end
+  vim.cmd "bd!"
+end
+
 -- NOTE: The test code will be executed with nlua. This tool does NOT load
 -- filetype plugins. But, for some tests, I want them to be loaded. The
 -- following function uses the path to the open file to find the right ftplugin
@@ -9,7 +23,7 @@ local assert = require "luassert"
 -- function does NOT work for all filetypes (e.g., it fails for R files).
 -- However, for a test helper, its code is good enough.
 function M.source_ftplugin()
-  local file_path = vim.api.nvim_buf_get_name(0)
+  local file_path = api.nvim_buf_get_name(0)
 
   local file_type = vim.filetype.match { filename = file_path }
   if not file_type then
@@ -18,8 +32,9 @@ function M.source_ftplugin()
   end
 
   local pattern = string.format("ftplugin/%s.vim", file_type)
-  local plugin_files = vim.api.nvim_get_runtime_file(pattern, true)
+  local plugin_files = api.nvim_get_runtime_file(pattern, true)
 
+  ---@diagnostic disable-next-line: deprecated
   local plugin_file = table.foreach(
     plugin_files,
     ---@param f string
@@ -34,18 +49,6 @@ function M.source_ftplugin()
   end
 
   vim.cmd.source(plugin_file)
-end
-
----@param file_name string
-function M.edit_file(file_name)
-  local file_path = vim.fs.joinpath("spec", "fixtures", file_name)
-  vim.cmd.edit(file_path)
-end
-
-function M.unload_buffer()
-  local file_path = vim.api.nvim_buf_get_name(0)
-  if file_path == "" then return end
-  vim.cmd "bd!"
 end
 
 ---@param s string

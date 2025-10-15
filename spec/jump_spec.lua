@@ -7,8 +7,6 @@ describe("code-cells.api.jump", function()
   after_each(helpers.unload_buffer)
 
   describe(".to_next()", function()
-    local to_next = jump.to_next
-
     it("throws an error when the type of `count` is wrong", function()
       local delimiter = "-- %%"
       local invalid_input = {
@@ -19,7 +17,7 @@ describe("code-cells.api.jump", function()
         table = { no = true },
       }
       for _, count in pairs(invalid_input) do
-        helpers.check_valid_msg("non-zero integer", to_next, delimiter, count)
+        helpers.check_valid_msg("non-zero integer", jump.to_next, delimiter, count)
       end
     end)
 
@@ -28,7 +26,7 @@ describe("code-cells.api.jump", function()
       helpers.source_ftplugin()
       local init_pos = { 11, 28 }
       vim.api.nvim_win_set_cursor(0, init_pos)
-      to_next()
+      jump.to_next()
       local new_pos = vim.api.nvim_win_get_cursor(0)
       local exp_pos = { 15, 0 }
       assert.are.same(new_pos, exp_pos)
@@ -40,7 +38,7 @@ describe("code-cells.api.jump", function()
       vim.api.nvim_win_set_cursor(0, init_pos)
       local delimiter = "# %%"
       local count = 1
-      to_next(delimiter, count)
+      jump.to_next(delimiter, count)
       local new_pos = vim.api.nvim_win_get_cursor(0)
       local exp_pos = { 23, 0 }
       assert.are.same(new_pos, exp_pos)
@@ -52,7 +50,7 @@ describe("code-cells.api.jump", function()
       local init_pos = { 2, 17 }
       vim.api.nvim_win_set_cursor(0, init_pos)
       local count = 2
-      to_next(nil, count)
+      jump.to_next(nil, count)
       local new_pos = vim.api.nvim_win_get_cursor(0)
       local exp_pos = { 15, 0 }
       assert.are.same(new_pos, exp_pos)
@@ -66,7 +64,7 @@ describe("code-cells.api.jump", function()
         local init_pos = { 3, 0 }
         vim.api.nvim_win_set_cursor(0, init_pos)
         local count = 10
-        to_next(nil, count)
+        jump.to_next(nil, count)
         local new_pos = vim.api.nvim_win_get_cursor(0)
         local exp_pos = { 19, 0 }
         assert.are.same(new_pos, exp_pos)
@@ -79,7 +77,7 @@ describe("code-cells.api.jump", function()
       local init_pos = { 6, 25 }
       vim.api.nvim_win_set_cursor(0, init_pos)
       local count = -1
-      to_next(nil, count)
+      jump.to_next(nil, count)
       local new_pos = vim.api.nvim_win_get_cursor(0)
       local exp_pos = { 4, 0 }
       assert.are.same(new_pos, exp_pos)
@@ -91,7 +89,7 @@ describe("code-cells.api.jump", function()
       local init_pos = { 10, 11 }
       vim.api.nvim_win_set_cursor(0, init_pos)
       local count = 1
-      to_next(nil, count)
+      jump.to_next(nil, count)
       local new_pos = vim.api.nvim_win_get_cursor(0)
       assert.are.same(new_pos, init_pos)
     end)
@@ -102,7 +100,7 @@ describe("code-cells.api.jump", function()
       local init_pos = { vim.fn.line "$", 0 }
       vim.api.nvim_win_set_cursor(0, init_pos)
       local count = 1
-      to_next(nil, count)
+      jump.to_next(nil, count)
       local new_pos = vim.api.nvim_win_get_cursor(0)
       assert.are.same(new_pos, init_pos)
     end)
