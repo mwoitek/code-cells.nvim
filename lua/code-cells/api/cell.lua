@@ -52,6 +52,26 @@ function Cell:trim_top()
   return Cell.new(new_first, self.last_line)
 end
 
+---@return cells.Cell # Trimmed code cell
+function Cell:trim_bottom()
+  local new_last = self.last_line
+  local lstr ---@type string?
+
+  while new_last > self.first_line do
+    lstr = fn.getline(new_last)
+    if is_empty_string(lstr) then
+      new_last = new_last - 1
+    else
+      break
+    end
+  end
+
+  if new_last == self.first_line then
+    return lstr and Cell.new(self.first_line, self.first_line + 1) or self
+  end
+  return Cell.new(self.first_line, new_last)
+end
+
 M.Cell = Cell
 
 return M
