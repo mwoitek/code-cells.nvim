@@ -169,48 +169,53 @@ function M.find_nth(delimiter, n, opts)
   local delim_pattern = M.get_pattern(delimiter)
   if not delim_pattern then return end
 
+  vim.validate("opts", opts, "table", true)
+
   local valid = require "code-cells.core.validation"
   vim.validate("n", n, valid.non_zero_integer, "non-zero integer")
 
-  vim.validate("opts", opts, "table", true)
   if opts then
     vim.validate("allow_less", opts.allow_less, "boolean", true)
     vim.validate("include_line", opts.include_line, "boolean", true)
     vim.validate("line", opts.line, valid.positive_integer, true, "positive integer")
   end
+
   opts = vim.tbl_extend("keep", opts or {}, {
     line = fn.line ".",
     include_line = false,
     allow_less = false,
   })
 
-  local regex = vim.regex(delim_pattern)
-  local incr = n < 0 and -1 or 1
-  n = math.abs(n)
-
-  local line_count = api.nvim_buf_line_count(0)
-  local line = min(opts.line, line_count)
-  local is_ok ---@type fun(l: integer): boolean
-
-  if incr < 0 then
-    line = opts.include_line and line or line - 1
-    if line == 0 then return end
-    is_ok = function(l) return l >= 1 end
+  local incr ---@type integer
+  if n < 0 then
+    incr = -1
+    n = -n
   else
-    if line == line_count then return end
-    line = line + 1
-    is_ok = function(l) return l <= line_count end
+    incr = 1
   end
 
-  local last_match = nil ---@type integer?
+  local line_count = api.nvim_buf_line_count(0)
+  local iter_first = min(opts.line, line_count)
+  if not opts.include_line then iter_first = iter_first + incr end
 
-  while n > 0 and is_ok(line) do
-    local start = regex:match_line(0, line - 1)
-    if type(start) == "number" then
+  local iter_last ---@type integer
+  if incr == -1 then
+    if iter_first == 0 then return end
+    iter_last = 1
+  else
+    if iter_first > line_count then return end
+    iter_last = line_count
+  end
+
+  local last_match ---@type integer?
+  local regex = vim.regex(delim_pattern)
+
+  for line = iter_first, iter_last, incr do
+    if regex:match_line(0, line - 1) then
       last_match = line
       n = n - 1
+      if n == 0 then break end
     end
-    line = line + incr
   end
 
   if n == 0 or opts.allow_less then return last_match end
