@@ -62,5 +62,49 @@ describe("code-cells.api.cell", function()
         assert.is_true(trimmed_cell == orig_cell)
       end)
     end)
+
+    describe(":trim_bottom()", function()
+      it("works when the cell has nothing at the bottom that can be trimmed", function()
+        helpers.edit_file "10.py"
+        helpers.source_ftplugin()
+        local first_line = 14
+        local last_line = 18
+        local orig_cell = Cell.new(first_line, last_line)
+        local trimmed_cell = orig_cell:trim_bottom()
+        assert.is_true(trimmed_cell == orig_cell)
+      end)
+
+      it("works when the cell has something at the bottom that can be trimmed", function()
+        helpers.edit_file "10.py"
+        helpers.source_ftplugin()
+        local first_line = 5
+        local last_line = 13
+        local orig_cell = Cell.new(first_line, last_line)
+        local trimmed_cell = orig_cell:trim_bottom()
+        local exp_cell = Cell.new(first_line, 10)
+        assert.is_true(trimmed_cell == exp_cell)
+      end)
+
+      it("works when the cell has only blank lines", function()
+        helpers.edit_file "10.py"
+        helpers.source_ftplugin()
+        local first_line = 19
+        local last_line = 24
+        local orig_cell = Cell.new(first_line, last_line)
+        local trimmed_cell = orig_cell:trim_bottom()
+        local exp_cell = Cell.new(first_line, first_line + 1)
+        assert.is_true(trimmed_cell == exp_cell)
+      end)
+
+      it("works when the cell is completely empty", function()
+        helpers.edit_file "10.py"
+        helpers.source_ftplugin()
+        local first_line = 25
+        local last_line = 25
+        local orig_cell = Cell.new(first_line, last_line)
+        local trimmed_cell = orig_cell:trim_bottom()
+        assert.is_true(trimmed_cell == orig_cell)
+      end)
+    end)
   end)
 end)
