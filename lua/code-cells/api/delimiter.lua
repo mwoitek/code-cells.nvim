@@ -59,7 +59,6 @@ function M.find(delimiter, first_line, last_line, max_matches)
   local valid = require "code-cells.core.validation"
   vim.validate("first_line", first_line, valid.positive_integer, "positive integer")
   vim.validate("last_line", last_line, valid.positive_integer, "positive integer")
-
   vim.validate("max_matches", max_matches, valid.positive_integer, true, "positive integer")
 
   local line_count ---@type integer?
@@ -73,9 +72,13 @@ function M.find(delimiter, first_line, last_line, max_matches)
   if first_line > last_line then
     incr = -1
     first_line = min(first_line, line_count)
-  else
+  elseif first_line < last_line then
     incr = 1
     last_line = min(last_line, line_count)
+  else
+    incr = 1
+    first_line = min(first_line, line_count)
+    last_line = first_line
   end
 
   local matches = {} ---@type integer[]
