@@ -147,8 +147,48 @@ describe("code-cells.api.delimiter", function()
   end)
 
   describe(".find_nth()", function()
-    it("TODO", function()
-      -- TODO
+    it("finds next delimiter starting from the current line (exclusive)", function()
+      helpers.edit_file "04.sql"
+      helpers.source_ftplugin()
+      local init_pos = { 1, 4 }
+      api.nvim_win_set_cursor(0, init_pos)
+      local n = 1
+      local match = delimiter.find_nth(nil, n)
+      local exp_match = 8
+      assert.are_equal(match, exp_match)
+    end)
+
+    it("finds next delimiter starting from the current line (inclusive)", function()
+      helpers.edit_file "04.sql"
+      helpers.source_ftplugin()
+      local init_pos = { 1, 4 }
+      api.nvim_win_set_cursor(0, init_pos)
+      local n = 1
+      local match = delimiter.find_nth(nil, n, { include_line = true })
+      local exp_match = 1
+      assert.are_equal(match, exp_match)
+    end)
+
+    it("finds previous delimiter starting from the current line (exclusive)", function()
+      helpers.edit_file "01.py"
+      helpers.source_ftplugin()
+      local init_pos = { 10, 3 }
+      api.nvim_win_set_cursor(0, init_pos)
+      local n = -1
+      local match = delimiter.find_nth(nil, n)
+      local exp_match = 5
+      assert.are_equal(match, exp_match)
+    end)
+
+    it("finds previous delimiter starting from the current line (inclusive)", function()
+      helpers.edit_file "01.py"
+      helpers.source_ftplugin()
+      local init_pos = { 10, 3 }
+      api.nvim_win_set_cursor(0, init_pos)
+      local n = -1
+      local match = delimiter.find_nth(nil, n, { include_line = true })
+      local exp_match = 10
+      assert.are_equal(match, exp_match)
     end)
   end)
 end)
