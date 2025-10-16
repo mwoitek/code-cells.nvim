@@ -72,6 +72,17 @@ function Cell:trim_bottom()
   return Cell.new(self.first_line, new_last)
 end
 
+---@param skip_lead_blanks boolean? Skip leading blank lines?
+---@return cells.Cell # Inner part of the given cell
+function Cell:inner(skip_lead_blanks)
+  if skip_lead_blanks == nil then skip_lead_blanks = true end
+  local inner = self:trim_bottom()
+  if skip_lead_blanks then return inner:trim_top() end
+  local new_first = inner.first_line + 1
+  if new_first <= inner.last_line then inner.first_line = new_first end
+  return inner
+end
+
 M.Cell = Cell
 
 return M
