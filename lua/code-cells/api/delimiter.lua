@@ -2,6 +2,7 @@ local M = {}
 
 local api = vim.api
 local fn = vim.fn
+local min = math.min
 
 -- Get delimiter {{{
 ---@param filetype string
@@ -61,39 +62,33 @@ function M.find(delimiter, first_line, last_line, max_matches)
 
   vim.validate("max_matches", max_matches, valid.positive_integer, true, "positive integer")
 
-  local line_count = nil ---@type integer?
+  local line_count ---@type integer?
   if not max_matches then
     line_count = api.nvim_buf_line_count(0)
     max_matches = line_count + 1
   end
 
-  local regex = vim.regex(delim_pattern)
-
-  local min_line, max_line = first_line, last_line
-  local incr = 1
-  if min_line > max_line then
-    min_line, max_line = max_line, min_line
-    incr = -1
-  end
+  local incr ---@type integer
   line_count = line_count or api.nvim_buf_line_count(0)
-  max_line = math.min(max_line, line_count)
+  if first_line > last_line then
+    incr = -1
+    first_line = min(first_line, line_count)
+  else
+    incr = 1
+    last_line = min(last_line, line_count)
+  end
 
   local matches = {} ---@type integer[]
+  local regex = vim.regex(delim_pattern)
 
-  local iter_first, iter_last = min_line, max_line
-  if incr < 0 then
-    iter_first, iter_last = iter_last, iter_first
-  end
-
-  for line = iter_first, iter_last, incr do
-    local start = regex:match_line(0, line - 1)
-    if type(start) == "number" then
+  for line = first_line, last_line, incr do
+    if regex:match_line(0, line - 1) then
       matches[#matches + 1] = line
       if #matches == max_matches then break end
     end
   end
 
-  return #matches > 0 and matches or nil
+  if #matches > 0 then return matches end
 end
 
 ---@class cells.delimiter.FindOpts
@@ -118,7 +113,7 @@ function M.find_above(delimiter, opts)
     include_line = false,
     max_matches = line_count + 1,
   })
-  opts.line = math.min(opts.line, line_count)
+  opts.line = min(opts.line, line_count)
 
   local last_line = opts.include_line and opts.line or opts.line - 1
   if last_line == 0 then return end
@@ -143,7 +138,7 @@ function M.find_below(delimiter, opts)
     include_line = false,
     max_matches = line_count + 1,
   })
-  opts.line = math.min(opts.line, line_count)
+  opts.line = min(opts.line, line_count)
 
   local first_line = opts.include_line and opts.line or opts.line + 1
   if first_line > line_count then return end
@@ -190,7 +185,7 @@ function M.find_nth(delimiter, n, opts)
   n = math.abs(n)
 
   local line_count = api.nvim_buf_line_count(0)
-  local line = math.min(opts.line, line_count)
+  local line = min(opts.line, line_count)
   local is_ok ---@type fun(l: integer): boolean
 
   if incr < 0 then
