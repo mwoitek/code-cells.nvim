@@ -148,7 +148,11 @@ end
 
 ---@param delimiter string? Cell delimiter
 ---@return integer[]? # Lines where there is a match, or nil if no match was found
-function M.find_all(delimiter) return M.find(delimiter) end
+function M.find_all(delimiter)
+  local first_line = 1
+  local last_line = api.nvim_buf_line_count(0)
+  return M.find(delimiter, first_line, last_line)
+end
 -- }}}
 
 -- Find n-th delimiter {{{
