@@ -1,6 +1,14 @@
 local M = {}
 
 local api = vim.api
+local fn = vim.fn
+
+---@param s string Input string
+---@return boolean # true if input is empty, false otherwise
+local function is_empty_string(s)
+  local start = string.find(s, "^%s*$")
+  return type(start) == "number"
+end
 
 ---@class cells.Cell Code cell
 ---@field first_line integer Cell's first line
@@ -17,6 +25,31 @@ function Cell.new(first_line, last_line)
     last_line = last_line or api.nvim_buf_line_count(0),
   }
   return setmetatable(obj, Cell)
+end
+
+---@param c1 cells.Cell First cell
+---@param c2 cells.Cell Second cell
+---@return boolean # true if cells are equal, false otherwise
+function Cell.__eq(c1, c2) return c1.first_line == c2.first_line and c1.last_line == c2.last_line end
+
+---@return cells.Cell # Trimmed code cell
+function Cell:trim_top()
+  local new_first = self.first_line + 1
+  local lstr ---@type string?
+
+  while new_first <= self.last_line do
+    lstr = fn.getline(new_first)
+    if is_empty_string(lstr) then
+      new_first = new_first + 1
+    else
+      break
+    end
+  end
+
+  if new_first > self.last_line then
+    return lstr and Cell.new(self.first_line + 1, self.last_line) or self
+  end
+  return Cell.new(new_first, self.last_line)
 end
 
 M.Cell = Cell
