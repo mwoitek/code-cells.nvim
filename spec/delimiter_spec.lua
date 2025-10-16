@@ -128,6 +128,24 @@ describe("code-cells.api.delimiter", function()
     end)
   end)
 
+  describe(".find_all()", function()
+    it("finds all matches when the default argument is used", function()
+      helpers.edit_file "09.lua"
+      helpers.source_ftplugin()
+      local matches = delimiter.find_all()
+      local exp_matches = { 1, 4, 13, 18, 21, 38, 46, 49, 62 }
+      assert.are.same(matches, exp_matches)
+    end)
+
+    it("finds all matches when the delimiter is explicitly given", function()
+      helpers.edit_file "02.R"
+      local delim = "# %%"
+      local matches = delimiter.find_all(delim)
+      local exp_matches = { 1, 4, 23 }
+      assert.are.same(matches, exp_matches)
+    end)
+  end)
+
   describe(".find_nth()", function()
     it("TODO", function()
       -- TODO
