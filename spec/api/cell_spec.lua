@@ -14,140 +14,118 @@ describe("code-cells.api.cell", function()
 
     after_each(helpers.unload_buffer)
 
-    describe(":trim_top()", function()
-      it("works when the cell has nothing at the top that can be trimmed", function()
-        local first_line = 1
-        local last_line = 4
-        local orig_cell = Cell.new(first_line, last_line)
-        local trimmed_cell = orig_cell:trim_top()
-        local exp_cell = Cell.new(first_line + 1, last_line)
-        assert.is_true(trimmed_cell == exp_cell)
-      end)
-
-      it("works when the cell has something at the top that can be trimmed", function()
-        local first_line = 5
-        local last_line = 13
-        local orig_cell = Cell.new(first_line, last_line)
-        local trimmed_cell = orig_cell:trim_top()
-        local exp_cell = Cell.new(8, last_line)
-        assert.is_true(trimmed_cell == exp_cell)
-      end)
-
-      it("works when only the last line is non-empty", function()
-        local first_line = 14
-        local last_line = 18
-        local orig_cell = Cell.new(first_line, last_line)
-        local trimmed_cell = orig_cell:trim_top()
-        local exp_cell = Cell.new(last_line, last_line)
-        assert.is_true(trimmed_cell == exp_cell)
-      end)
-
-      it("works when the cell has only blank lines", function()
-        local first_line = 19
-        local last_line = 24
-        local orig_cell = Cell.new(first_line, last_line)
-        local trimmed_cell = orig_cell:trim_top()
-        local exp_cell = Cell.new(first_line + 1, last_line)
-        assert.is_true(trimmed_cell == exp_cell)
-      end)
-
-      it("works when the cell is completely empty", function()
-        local first_line = 25
-        local last_line = 25
-        local orig_cell = Cell.new(first_line, last_line)
-        local trimmed_cell = orig_cell:trim_top()
-        assert.is_true(trimmed_cell == orig_cell)
-      end)
-    end)
-
-    describe(":trim_bottom()", function()
-      it("works when the cell has nothing at the bottom that can be trimmed", function()
-        local first_line = 14
-        local last_line = 18
-        local orig_cell = Cell.new(first_line, last_line)
-        local trimmed_cell = orig_cell:trim_bottom()
-        assert.is_true(trimmed_cell == orig_cell)
-      end)
-
-      it("works when the cell has something at the bottom that can be trimmed", function()
-        local first_line = 5
-        local last_line = 13
-        local orig_cell = Cell.new(first_line, last_line)
-        local trimmed_cell = orig_cell:trim_bottom()
-        local exp_cell = Cell.new(first_line, 10)
-        assert.is_true(trimmed_cell == exp_cell)
-      end)
-
-      it("works when the cell has only blank lines", function()
-        local first_line = 19
-        local last_line = 24
-        local orig_cell = Cell.new(first_line, last_line)
-        local trimmed_cell = orig_cell:trim_bottom()
-        local exp_cell = Cell.new(first_line, first_line + 1)
-        assert.is_true(trimmed_cell == exp_cell)
-      end)
-
-      it("works when the cell is completely empty", function()
-        local first_line = 25
-        local last_line = 25
-        local orig_cell = Cell.new(first_line, last_line)
-        local trimmed_cell = orig_cell:trim_bottom()
-        assert.is_true(trimmed_cell == orig_cell)
-      end)
-    end)
-
     describe(":inner()", function()
       it([[finds the inner part of a "normal" cell]], function()
         local first_line = 1
         local last_line = 4
         local c = Cell.new(first_line, last_line)
-        local inner = c:inner()
-        local exp_inner = Cell.new(2, 3)
-        assert.is_true(inner == exp_inner)
+        local inner_first, inner_last = c:inner()
+        assert.are_equal(inner_first, 2)
+        assert.are_equal(inner_last, 3)
       end)
 
-      it("finds the inner part of a cell with blanks at the top and bottom", function()
+      it("finds the inner part of a cell with leading/trailing blanks", function()
         local first_line = 5
         local last_line = 13
         local c = Cell.new(first_line, last_line)
-        local inner = c:inner()
-        local exp_inner = Cell.new(8, 10)
-        assert.is_true(inner == exp_inner)
+        local inner_first, inner_last = c:inner()
+        assert.are_equal(inner_first, 6)
+        assert.are_equal(inner_last, 12)
       end)
 
-      it("finds the inner part of a cell with a single non-empty line at the end", function()
+      it("finds the inner part of a cell when only the last line is non-empty", function()
         local first_line = 14
         local last_line = 18
         local c = Cell.new(first_line, last_line)
-        local inner = c:inner()
-        local exp_inner = Cell.new(last_line, last_line)
-        assert.is_true(inner == exp_inner)
+        local inner_first, inner_last = c:inner()
+        assert.are_equal(inner_first, 15)
+        assert.are_equal(inner_last, 18)
       end)
 
-      it("finds the inner part of a cell with only blank lines", function()
+      it("finds the inner part when the cell has only blank lines", function()
         local first_line = 19
         local last_line = 24
         local c = Cell.new(first_line, last_line)
-        local inner = c:inner()
-        local exp_inner = Cell.new(first_line + 1, first_line + 1)
-        assert.is_true(inner == exp_inner)
+        local inner_first, inner_last = c:inner()
+        assert.are_equal(inner_first, 20)
+        assert.are_equal(inner_last, 23)
       end)
 
-      it("handles the case of a cell that is completely empty", function()
+      it("handles the case of a completely empty cell", function()
         local first_line = 25
         local last_line = 25
         local c = Cell.new(first_line, last_line)
-        local inner = c:inner()
-        assert.is_true(inner == c)
+        local inner_first, inner_last = c:inner()
+        assert.are_equal(inner_first, 25)
+        assert.are_equal(inner_last, 25)
+      end)
+    end)
+
+    describe(":first_non_blank()", function()
+      it("finds the correct line when there is no leading blank", function()
+        local first_line = 1
+        local last_line = 4
+        local c = Cell.new(first_line, last_line)
+        local first_non_blank = c:first_non_blank()
+        assert.are_equal(first_non_blank, 2)
       end)
 
-      it("finds the inner part of a cell while respecting `skip_lead_blanks=false`", function()
+      it("finds the correct line when the cell has leading blanks", function()
         local first_line = 5
         local last_line = 13
         local c = Cell.new(first_line, last_line)
-        local inner = c:inner(false)
-        local exp_inner = Cell.new(first_line + 1, 10)
-        assert.is_true(inner == exp_inner)
+        local first_non_blank = c:first_non_blank()
+        assert.are_equal(first_non_blank, 8)
+      end)
+
+      it("returns nil when the cell has only blank lines", function()
+        local first_line = 19
+        local last_line = 24
+        local c = Cell.new(first_line, last_line)
+        local first_non_blank = c:first_non_blank()
+        assert.is_nil(first_non_blank)
+      end)
+
+      it("returns nil when the cell is completely empty", function()
+        local first_line = 25
+        local last_line = 25
+        local c = Cell.new(first_line, last_line)
+        local first_non_blank = c:first_non_blank()
+        assert.is_nil(first_non_blank)
+      end)
+    end)
+
+    describe(":last_non_blank()", function()
+      it("finds the correct line when the cell has no trailing blank", function()
+        local first_line = 14
+        local last_line = 18
+        local c = Cell.new(first_line, last_line)
+        local last_non_blank = c:last_non_blank()
+        assert.are_equal(last_non_blank, 18)
+      end)
+
+      it("finds the correct line when the cell has trailing blanks", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+        local last_non_blank = c:last_non_blank()
+        assert.are_equal(last_non_blank, 10)
+      end)
+
+      it("returns nil when the cell has only blank lines", function()
+        local first_line = 19
+        local last_line = 24
+        local c = Cell.new(first_line, last_line)
+        local last_non_blank = c:last_non_blank()
+        assert.is_nil(last_non_blank)
+      end)
+
+      it("returns nil when the cell is completely empty", function()
+        local first_line = 25
+        local last_line = 25
+        local c = Cell.new(first_line, last_line)
+        local last_non_blank = c:last_non_blank()
+        assert.is_nil(last_non_blank)
       end)
     end)
   end)
