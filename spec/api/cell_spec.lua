@@ -95,5 +95,60 @@ describe("code-cells.api.cell", function()
         assert.is_true(trimmed_cell == orig_cell)
       end)
     end)
+
+    describe(":inner()", function()
+      it([[finds the inner part of a "normal" cell]], function()
+        local first_line = 1
+        local last_line = 4
+        local c = Cell.new(first_line, last_line)
+        local inner = c:inner()
+        local exp_inner = Cell.new(2, 3)
+        assert.is_true(inner == exp_inner)
+      end)
+
+      it("finds the inner part of a cell with blanks at the top and bottom", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+        local inner = c:inner()
+        local exp_inner = Cell.new(8, 10)
+        assert.is_true(inner == exp_inner)
+      end)
+
+      it("finds the inner part of a cell with a single non-empty line at the end", function()
+        local first_line = 14
+        local last_line = 18
+        local c = Cell.new(first_line, last_line)
+        local inner = c:inner()
+        local exp_inner = Cell.new(last_line, last_line)
+        assert.is_true(inner == exp_inner)
+      end)
+
+      it("finds the inner part of a cell with only blank lines", function()
+        local first_line = 19
+        local last_line = 24
+        local c = Cell.new(first_line, last_line)
+        local inner = c:inner()
+        local exp_inner = Cell.new(first_line + 1, first_line + 1)
+        assert.is_true(inner == exp_inner)
+      end)
+
+      it("handles the case of a cell that is completely empty", function()
+        local first_line = 25
+        local last_line = 25
+        local c = Cell.new(first_line, last_line)
+        local inner = c:inner()
+        assert.is_true(inner == c)
+      end)
+
+      it("finds the inner part of a cell while respecting `skip_lead_blanks=false`", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+        local inner = c:inner(false)
+        local exp_inner = Cell.new(first_line + 1, 10)
+        assert.is_true(inner == exp_inner)
+      end)
+    end)
   end)
 end)
