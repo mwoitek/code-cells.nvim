@@ -27,11 +27,6 @@ function Cell.new(first_line, last_line)
   return setmetatable(obj, Cell)
 end
 
----@param c1 cells.Cell First cell
----@param c2 cells.Cell Second cell
----@return boolean # true if cells are equal, false otherwise
-function Cell.__eq(c1, c2) return c1.first_line == c2.first_line and c1.last_line == c2.last_line end
-
 ---@return integer # First line of the cell's inner part
 ---@return integer # Last line of the cell's inner part
 function Cell:inner()
