@@ -7,10 +7,15 @@ describe("code-cells.api.cell", function()
   describe(".Cell", function()
     local Cell = cell.Cell
 
+    before_each(function()
+      helpers.edit_file "10.py"
+      helpers.source_ftplugin()
+    end)
+
+    after_each(helpers.unload_buffer)
+
     describe(":trim_top()", function()
       it("works when the cell has nothing at the top that can be trimmed", function()
-        helpers.edit_file "10.py"
-        helpers.source_ftplugin()
         local first_line = 1
         local last_line = 4
         local orig_cell = Cell.new(first_line, last_line)
@@ -20,8 +25,6 @@ describe("code-cells.api.cell", function()
       end)
 
       it("works when the cell has something at the top that can be trimmed", function()
-        helpers.edit_file "10.py"
-        helpers.source_ftplugin()
         local first_line = 5
         local last_line = 13
         local orig_cell = Cell.new(first_line, last_line)
@@ -31,8 +34,6 @@ describe("code-cells.api.cell", function()
       end)
 
       it("works when only the last line is non-empty", function()
-        helpers.edit_file "10.py"
-        helpers.source_ftplugin()
         local first_line = 14
         local last_line = 18
         local orig_cell = Cell.new(first_line, last_line)
@@ -42,8 +43,6 @@ describe("code-cells.api.cell", function()
       end)
 
       it("works when the cell has only blank lines", function()
-        helpers.edit_file "10.py"
-        helpers.source_ftplugin()
         local first_line = 19
         local last_line = 24
         local orig_cell = Cell.new(first_line, last_line)
@@ -53,8 +52,6 @@ describe("code-cells.api.cell", function()
       end)
 
       it("works when the cell is completely empty", function()
-        helpers.edit_file "10.py"
-        helpers.source_ftplugin()
         local first_line = 25
         local last_line = 25
         local orig_cell = Cell.new(first_line, last_line)
@@ -65,8 +62,6 @@ describe("code-cells.api.cell", function()
 
     describe(":trim_bottom()", function()
       it("works when the cell has nothing at the bottom that can be trimmed", function()
-        helpers.edit_file "10.py"
-        helpers.source_ftplugin()
         local first_line = 14
         local last_line = 18
         local orig_cell = Cell.new(first_line, last_line)
@@ -75,8 +70,6 @@ describe("code-cells.api.cell", function()
       end)
 
       it("works when the cell has something at the bottom that can be trimmed", function()
-        helpers.edit_file "10.py"
-        helpers.source_ftplugin()
         local first_line = 5
         local last_line = 13
         local orig_cell = Cell.new(first_line, last_line)
@@ -86,8 +79,6 @@ describe("code-cells.api.cell", function()
       end)
 
       it("works when the cell has only blank lines", function()
-        helpers.edit_file "10.py"
-        helpers.source_ftplugin()
         local first_line = 19
         local last_line = 24
         local orig_cell = Cell.new(first_line, last_line)
@@ -97,8 +88,6 @@ describe("code-cells.api.cell", function()
       end)
 
       it("works when the cell is completely empty", function()
-        helpers.edit_file "10.py"
-        helpers.source_ftplugin()
         local first_line = 25
         local last_line = 25
         local orig_cell = Cell.new(first_line, last_line)
