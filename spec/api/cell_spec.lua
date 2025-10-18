@@ -128,5 +128,52 @@ describe("code-cells.api.cell", function()
         assert.is_nil(last_non_blank)
       end)
     end)
+
+    describe(":core()", function()
+      it([[finds the core layer of a "normal" cell]], function()
+        local first_line = 1
+        local last_line = 4
+        local c = Cell.new(first_line, last_line)
+        local core_first, core_last = c:core()
+        assert.are_equal(core_first, 2)
+        assert.are_equal(core_last, 3)
+      end)
+
+      it("finds the core layer of a cell with leading/trailing blanks", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+        local core_first, core_last = c:core()
+        assert.are_equal(core_first, 8)
+        assert.are_equal(core_last, 10)
+      end)
+
+      it("finds the core layer of a cell with a single non-empty line at the end", function()
+        local first_line = 14
+        local last_line = 18
+        local c = Cell.new(first_line, last_line)
+        local core_first, core_last = c:core()
+        assert.are_equal(core_first, 18)
+        assert.are_equal(core_last, 18)
+      end)
+
+      it("finds the core layer of a cell with blank lines only", function()
+        local first_line = 19
+        local last_line = 24
+        local c = Cell.new(first_line, last_line)
+        local core_first, core_last = c:core()
+        assert.are_equal(core_first, 20)
+        assert.are_equal(core_last, 23)
+      end)
+
+      it("handles the case of a completely empty cell", function()
+        local first_line = 25
+        local last_line = 25
+        local c = Cell.new(first_line, last_line)
+        local core_first, core_last = c:core()
+        assert.are_equal(core_first, 25)
+        assert.are_equal(core_last, 25)
+      end)
+    end)
   end)
 end)
