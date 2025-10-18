@@ -15,7 +15,7 @@ describe("code-cells.api.cell", function()
     after_each(helpers.unload_buffer)
 
     describe(":inner()", function()
-      it([[finds the inner part of a "normal" cell]], function()
+      it([[finds the inner layer of a "normal" cell]], function()
         local first_line = 1
         local last_line = 4
         local c = Cell.new(first_line, last_line)
@@ -24,7 +24,7 @@ describe("code-cells.api.cell", function()
         assert.are_equal(inner_last, 3)
       end)
 
-      it("finds the inner part of a cell with leading/trailing blanks", function()
+      it("finds the inner layer of a cell with leading/trailing blanks", function()
         local first_line = 5
         local last_line = 13
         local c = Cell.new(first_line, last_line)
@@ -33,7 +33,7 @@ describe("code-cells.api.cell", function()
         assert.are_equal(inner_last, 12)
       end)
 
-      it("finds the inner part of a cell when only the last line is non-empty", function()
+      it("finds the inner layer of a cell with a single non-empty line at the end", function()
         local first_line = 14
         local last_line = 18
         local c = Cell.new(first_line, last_line)
@@ -42,7 +42,7 @@ describe("code-cells.api.cell", function()
         assert.are_equal(inner_last, 18)
       end)
 
-      it("finds the inner part when the cell has only blank lines", function()
+      it("finds the inner layer of a cell with blank lines only", function()
         local first_line = 19
         local last_line = 24
         local c = Cell.new(first_line, last_line)
@@ -62,7 +62,7 @@ describe("code-cells.api.cell", function()
     end)
 
     describe(":first_non_blank()", function()
-      it("finds the correct line when there is no leading blank", function()
+      it("finds the correct line when the cell has no leading blank", function()
         local first_line = 1
         local last_line = 4
         local c = Cell.new(first_line, last_line)
