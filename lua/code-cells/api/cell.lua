@@ -108,6 +108,20 @@ function Cell:jump(layer, position)
   api.nvim_win_set_cursor(0, { line, 0 })
 end
 
+---@param layer cells.cell.Layer Cell layer
+function Cell:select(layer)
+  local mode = api.nvim_get_mode()
+  if mode:lower() ~= "v" then return end
+  vim.cmd("normal! " .. mode)
+
+  local first, last = self:range(layer)
+  api.nvim_win_set_cursor(0, { first, 0 })
+  vim.cmd "normal! V"
+
+  local last_col = fn.col { last, "$" } - 1
+  api.nvim_win_set_cursor(0, { last, last_col })
+end
+
 M.Cell = Cell
 
 return M
