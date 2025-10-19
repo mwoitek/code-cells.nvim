@@ -110,7 +110,7 @@ end
 
 ---@param layer cells.cell.Layer Cell layer
 function Cell:select(layer)
-  local mode = api.nvim_get_mode()
+  local mode = api.nvim_get_mode().mode
   if mode:lower() ~= "v" then return end
   vim.cmd("normal! " .. mode)
 
@@ -120,6 +120,24 @@ function Cell:select(layer)
 
   local last_col = fn.col { last, "$" } - 1
   api.nvim_win_set_cursor(0, { last, last_col })
+end
+
+---@param delimiter string? Cell delimiter
+---@param line integer? Reference line
+---@return cells.Cell? # Surrounding cell, or nil if there is none
+function M.find_surrounding(delimiter, line)
+  local delim = require "code-cells.api.delimiter"
+
+  local first_line = delim.find_nth(delimiter, -1, {
+    line = line,
+    include_line = true,
+  })
+  if not first_line then return end
+
+  local last_line = delim.find_nth(delimiter, 1, { line = first_line })
+  if last_line then last_line = last_line - 1 end
+
+  return Cell.new(first_line, last_line)
 end
 
 M.Cell = Cell
