@@ -14,4 +14,19 @@ vim.keymap.set(
 )
 -- }}}
 
+-- Cell textobject {{{
+vim.keymap.set(
+  "x",
+  "<Plug>(CellsObjOuter)",
+  function() require("code-cells.api.cell").textobject() end
+)
+vim.keymap.set(
+  "x",
+  "<Plug>(CellsObjInner)",
+  function() require("code-cells.api.cell").textobject(nil, true) end
+)
+vim.keymap.set("o", "<Plug>(CellsObjOuter)", "<Cmd>normal v<Plug>(CellsObjOuter)<CR>")
+vim.keymap.set("o", "<Plug>(CellsObjInner)", "<Cmd>normal v<Plug>(CellsObjInner)<CR>")
+-- }}}
+
 -- vim: foldmethod=marker:
