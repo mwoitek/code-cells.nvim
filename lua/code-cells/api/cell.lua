@@ -140,6 +140,27 @@ function M.find_surrounding(delimiter, line)
   return Cell.new(first_line, last_line)
 end
 
+---@param delimiter string? Cell delimiter
+---@param line integer? Reference line
+---@return cells.Cell? # Closest cell, or nil if there is none
+function M.find_closest(delimiter, line)
+  local surrounding = M.find_surrounding(delimiter, line)
+  if surrounding then return surrounding end
+
+  local delim = require "code-cells.api.delimiter"
+  local lnums = delim.find_below(delimiter, {
+    line = line,
+    max_matches = 2,
+  })
+  if not lnums then return end
+
+  local first_line = lnums[1]
+  local last_line = lnums[2] ---@type integer?
+  if last_line then last_line = last_line - 1 end
+
+  return Cell.new(first_line, last_line)
+end
+
 M.Cell = Cell
 
 return M
