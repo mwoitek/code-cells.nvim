@@ -17,3 +17,6 @@ vim.opt.runtimepath:append(plugin_path)
 
 vim.keymap.set({ "n", "o", "x" }, "<Space>cp", "<Plug>(CellsJumpPrev)")
 vim.keymap.set({ "n", "o", "x" }, "<Space>cn", "<Plug>(CellsJumpNext)")
+
+vim.keymap.set({ "o", "x" }, "ac", "<Plug>(CellsObjOuter)")
+vim.keymap.set({ "o", "x" }, "ic", "<Plug>(CellsObjInner)")
