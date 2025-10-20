@@ -161,48 +161,6 @@ function M.find_closest(delimiter, line)
   return Cell.new(first_line, last_line)
 end
 
----@class cells.cell.TextobjectOpts
----@field lookahead boolean? If not inside a cell, look for the next one?
----@field skip_blanks boolean? For the inner textobject, skip leading/trailing blank lines?
-
----@param delimiter string? Cell delimiter
----@param inner boolean? Inner textobject?
----@param opts cells.cell.TextobjectOpts? Extra options
-function M.textobject(delimiter, inner, opts)
-  vim.validate("inner", inner, "boolean", true)
-  vim.validate("opts", opts, "table", true)
-
-  if opts then
-    vim.validate("lookahead", opts.lookahead, "boolean", true)
-    vim.validate("skip_blanks", opts.skip_blanks, "boolean", true)
-  end
-
-  opts = vim.tbl_extend("keep", opts or {}, {
-    -- TODO: make these default values customizable
-    lookahead = true,
-    skip_blanks = false,
-  })
-
-  local cell ---@type cells.Cell?
-  if opts.lookahead then
-    cell = M.find_closest(delimiter)
-  else
-    cell = M.find_surrounding(delimiter)
-  end
-  if not cell then return end
-
-  local layer ---@type cells.cell.Layer
-  if not inner then
-    layer = "outer"
-  elseif opts.skip_blanks then
-    layer = "core"
-  else
-    layer = "inner"
-  end
-
-  cell:select(layer)
-end
-
 M.Cell = Cell
 
 return M
