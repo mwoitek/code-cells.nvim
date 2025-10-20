@@ -292,5 +292,74 @@ describe("code-cells.api.cell", function()
         assert.are.same(new_pos, exp_pos)
       end)
     end)
+
+    describe(":select()", function()
+      it("correctly selects the outer layer of a cell", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        vim.cmd "normal! v"
+        local layer = "outer"
+        c:select(layer)
+
+        local mode = api.nvim_get_mode().mode
+        assert.are_equal(mode, "V")
+
+        local selection = helpers.get_selection_range() ---@cast selection - ?
+        assert.are.same(selection.first, { 5, 1 })
+        assert.are.same(selection.last, { 13, 1 })
+      end)
+
+      it("correctly selects the inner layer of a cell", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        vim.cmd "normal! v"
+        local layer = "inner"
+        c:select(layer)
+
+        local mode = api.nvim_get_mode().mode
+        assert.are_equal(mode, "V")
+
+        local selection = helpers.get_selection_range() ---@cast selection - ?
+        assert.are.same(selection.first, { 6, 1 })
+        assert.are.same(selection.last, { 12, 1 })
+      end)
+
+      it("correctly selects the core layer of a cell", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        vim.cmd "normal! v"
+        local layer = "core"
+        c:select(layer)
+
+        local mode = api.nvim_get_mode().mode
+        assert.are_equal(mode, "V")
+
+        local selection = helpers.get_selection_range() ---@cast selection - ?
+        assert.are.same(selection.first, { 8, 1 })
+        assert.are.same(selection.last, { 10, 30 })
+      end)
+
+      it("does nothing if not in visual mode", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        local init_pos = api.nvim_win_get_cursor(0)
+        c:select "outer"
+
+        local mode = api.nvim_get_mode().mode
+        assert.are.Not.equal(mode, "V")
+        assert.are_equal(mode, "n")
+
+        local new_pos = api.nvim_win_get_cursor(0)
+        assert.are.same(new_pos, init_pos)
+      end)
+    end)
   end)
 end)
