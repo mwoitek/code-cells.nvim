@@ -1,6 +1,8 @@
 local assert = require "luassert"
 local helpers = require "spec.helpers"
 
+local api = vim.api
+
 describe("code-cells.api.cell", function()
   local cell = require "code-cells.api.cell"
 
@@ -173,6 +175,121 @@ describe("code-cells.api.cell", function()
         local core_first, core_last = c:core()
         assert.are_equal(core_first, 25)
         assert.are_equal(core_last, 25)
+      end)
+    end)
+
+    describe(":range()", function()
+      it("gets the outer range correctly", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+        local range_first, range_last = c:range "outer"
+        assert.are_equal(range_first, 5)
+        assert.are_equal(range_last, 13)
+      end)
+
+      it("gets the inner range correctly", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+        local range_first, range_last = c:range "inner"
+        assert.are_equal(range_first, 6)
+        assert.are_equal(range_last, 12)
+      end)
+
+      it("gets the core range correctly", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+        local range_first, range_last = c:range "core"
+        assert.are_equal(range_first, 8)
+        assert.are_equal(range_last, 10)
+      end)
+    end)
+
+    describe(":jump()", function()
+      it("jumps to the first line of the outer layer", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        local layer = "outer"
+        local position = "first"
+        c:jump(layer, position)
+
+        local new_pos = api.nvim_win_get_cursor(0)
+        local exp_pos = { 5, 0 }
+        assert.are.same(new_pos, exp_pos)
+      end)
+
+      it("jumps to the first line of the inner layer", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        local layer = "inner"
+        local position = "first"
+        c:jump(layer, position)
+
+        local new_pos = api.nvim_win_get_cursor(0)
+        local exp_pos = { 6, 0 }
+        assert.are.same(new_pos, exp_pos)
+      end)
+
+      it("jumps to the first line of the core layer", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        local layer = "core"
+        local position = "first"
+        c:jump(layer, position)
+
+        local new_pos = api.nvim_win_get_cursor(0)
+        local exp_pos = { 8, 0 }
+        assert.are.same(new_pos, exp_pos)
+      end)
+
+      it("jumps to the last line of the outer layer", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        local layer = "outer"
+        local position = "last"
+        c:jump(layer, position)
+
+        local new_pos = api.nvim_win_get_cursor(0)
+        local exp_pos = { 13, 0 }
+        assert.are.same(new_pos, exp_pos)
+      end)
+
+      it("jumps to the last line of the inner layer", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        local layer = "inner"
+        local position = "last"
+        c:jump(layer, position)
+
+        local new_pos = api.nvim_win_get_cursor(0)
+        local exp_pos = { 12, 0 }
+        assert.are.same(new_pos, exp_pos)
+      end)
+
+      it("jumps to the last line of the core layer", function()
+        local first_line = 5
+        local last_line = 13
+        local c = Cell.new(first_line, last_line)
+
+        local layer = "core"
+        local position = "last"
+        c:jump(layer, position)
+
+        local new_pos = api.nvim_win_get_cursor(0)
+        local exp_pos = { 10, 0 }
+        assert.are.same(new_pos, exp_pos)
       end)
     end)
   end)
