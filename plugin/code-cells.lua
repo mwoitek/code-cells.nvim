@@ -1,5 +1,4 @@
 if vim.g.loaded_code_cells then return end
-vim.g.loaded_code_cells = true
 
 -- Jump to cells {{{
 vim.keymap.set(
@@ -18,15 +17,17 @@ vim.keymap.set(
 vim.keymap.set(
   "x",
   "<Plug>(CellsObjOuter)",
-  function() require("code-cells.api.cell").textobject() end
+  function() require("code-cells.api.textobject").textobject() end
 )
 vim.keymap.set(
   "x",
   "<Plug>(CellsObjInner)",
-  function() require("code-cells.api.cell").textobject(nil, true) end
+  function() require("code-cells.api.textobject").textobject(nil, true) end
 )
 vim.keymap.set("o", "<Plug>(CellsObjOuter)", "<Cmd>normal v<Plug>(CellsObjOuter)<CR>")
 vim.keymap.set("o", "<Plug>(CellsObjInner)", "<Cmd>normal v<Plug>(CellsObjInner)<CR>")
 -- }}}
+
+vim.g.loaded_code_cells = true
 
 -- vim: foldmethod=marker:
