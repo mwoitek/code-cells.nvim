@@ -406,4 +406,47 @@ describe("code-cells.api.cell", function()
       assert.is_nil(c)
     end)
   end)
+
+  describe(".find_closest()", function()
+    before_each(function()
+      helpers.edit_file "11.sql"
+      helpers.source_ftplugin()
+    end)
+
+    it("finds the cell when the cursor is inside", function()
+      local init_pos = { 28, 12 }
+      api.nvim_win_set_cursor(0, init_pos)
+      local c = cell.find_closest()
+      assert.is.Not.Nil(c)
+      ---@cast c - ?
+      assert.are_equal(c.first_line, 26)
+      assert.are_equal(c.last_line, 33)
+    end)
+
+    it("finds the cell when the cursor is outside", function()
+      local init_pos = { 5, 0 }
+      api.nvim_win_set_cursor(0, init_pos)
+      local c = cell.find_closest()
+      assert.is.Not.Nil(c)
+      ---@cast c - ?
+      assert.are_equal(c.first_line, 6)
+      assert.are_equal(c.last_line, 13)
+    end)
+
+    it("finds the cell when the reference line is outside", function()
+      local line = 2
+      local c = cell.find_closest(nil, line)
+      assert.is.Not.Nil(c)
+      ---@cast c - ?
+      assert.are_equal(c.first_line, 6)
+      assert.are_equal(c.last_line, 13)
+    end)
+
+    it("returns nil when there is no cell at all", function()
+      local delimiter = "# %%" -- actual delimiter is -- %%
+      local line = 17
+      local c = cell.find_closest(delimiter, line)
+      assert.is_nil(c)
+    end)
+  end)
 end)
