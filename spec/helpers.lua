@@ -71,4 +71,19 @@ function M.check_valid_msg(type_, func, ...)
   assert.is_true(msg_ok)
 end
 
+---@return { first: integer[], last: integer[] }?
+function M.get_selection_range()
+  local mode = api.nvim_get_mode().mode
+  if mode:lower() ~= "v" then return end
+  vim.cmd("normal! " .. mode)
+
+  local _, first_line, first_col = unpack(vim.fn.getcharpos "'<")
+  local _, last_line, last_col = unpack(vim.fn.getcharpos "'>")
+
+  return {
+    first = { first_line, first_col },
+    last = { last_line, last_col },
+  }
+end
+
 return M
