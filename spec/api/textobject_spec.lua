@@ -14,6 +14,43 @@ describe("code-cells.api.textobject", function()
   after_each(helpers.unload_buffer)
 
   describe(".textobject()", function()
+    it("throws an error when `inner` is invalid", function()
+      local invalid_input = {
+        ["function"] = function(x) return x * 2 end,
+        number = -3,
+        string = "not valid",
+        table = { fail = true },
+      }
+      for _, inner in pairs(invalid_input) do
+        helpers.check_valid_msg("boolean", to.textobject, nil, inner)
+      end
+    end)
+
+    it("throws an error when `opts` is invalid", function()
+      local opts_1 = "INVALID"
+      helpers.check_valid_msg("table", to.textobject, nil, true, opts_1)
+
+      local opts_2 = { lookahead = 10 }
+      helpers.check_valid_msg("boolean", to.textobject, nil, false, opts_2)
+
+      local opts_3 = { skip_blanks = {} }
+      helpers.check_valid_msg("boolean", to.textobject, nil, nil, opts_3)
+    end)
+
+    it("does nothing when not in visual mode", function()
+      local init_pos = { 30, 2 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      to.textobject()
+
+      local mode = api.nvim_get_mode().mode
+      assert.are.Not.equal(mode, "V")
+      assert.are_equal(mode, "n")
+
+      local new_pos = api.nvim_win_get_cursor(0)
+      assert.are.same(new_pos, init_pos)
+    end)
+
     it("selects the outer range when inside of a cell", function()
       local init_pos = { 17, 21 }
       api.nvim_win_set_cursor(0, init_pos)
@@ -73,5 +110,43 @@ describe("code-cells.api.textobject", function()
       assert.are.same(selection.first, { 7, 1 })
       assert.are.same(selection.last, { 12, 2 })
     end)
+
+    it(
+      "does not select the outer range when outside of a cell and lookahead is disabled",
+      function()
+        local init_pos = { 1, 0 }
+        api.nvim_win_set_cursor(0, init_pos)
+
+        vim.cmd "normal! v"
+        to.textobject(nil, false, { lookahead = false })
+
+        local mode = api.nvim_get_mode().mode
+        assert.are.Not.equal(mode, "V")
+        assert.are_equal(mode, "v")
+
+        vim.cmd "normal! v"
+        local new_pos = api.nvim_win_get_cursor(0)
+        assert.are.same(new_pos, init_pos)
+      end
+    )
+
+    it(
+      "does not select the inner range when outside of a cell and lookahead is disabled",
+      function()
+        local init_pos = { 5, 0 }
+        api.nvim_win_set_cursor(0, init_pos)
+
+        vim.cmd "normal! v"
+        to.textobject(nil, true, { lookahead = false })
+
+        local mode = api.nvim_get_mode().mode
+        assert.are.Not.equal(mode, "V")
+        assert.are_equal(mode, "v")
+
+        vim.cmd "normal! v"
+        local new_pos = api.nvim_win_get_cursor(0)
+        assert.are.same(new_pos, init_pos)
+      end
+    )
   end)
 end)
