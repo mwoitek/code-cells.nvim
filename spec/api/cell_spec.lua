@@ -6,6 +6,8 @@ local api = vim.api
 describe("code-cells.api.cell", function()
   local cell = require "code-cells.api.cell"
 
+  after_each(helpers.unload_buffer)
+
   describe(".Cell", function()
     local Cell = cell.Cell
 
@@ -13,8 +15,6 @@ describe("code-cells.api.cell", function()
       helpers.edit_file "10.py"
       helpers.source_ftplugin()
     end)
-
-    after_each(helpers.unload_buffer)
 
     describe(":inner()", function()
       it([[finds the inner layer of a "normal" cell]], function()
@@ -360,6 +360,50 @@ describe("code-cells.api.cell", function()
         local new_pos = api.nvim_win_get_cursor(0)
         assert.are.same(new_pos, init_pos)
       end)
+    end)
+  end)
+
+  describe(".find_surrounding()", function()
+    before_each(function()
+      helpers.edit_file "11.sql"
+      helpers.source_ftplugin()
+    end)
+
+    it("finds the cell that surrounds the current line", function()
+      local init_pos = { 20, 17 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      local c = cell.find_surrounding()
+      assert.is.Not.Nil(c)
+
+      ---@cast c - ?
+      assert.are_equal(c.first_line, 14)
+      assert.are_equal(c.last_line, 25)
+    end)
+
+    it("finds the cell that surrounds the specified line", function()
+      local line = 11
+      local c = cell.find_surrounding(nil, line)
+      assert.is.Not.Nil(c)
+      ---@cast c - ?
+      assert.are_equal(c.first_line, 6)
+      assert.are_equal(c.last_line, 13)
+    end)
+
+    it("finds the cell that surrounds the specified line when it contains a delimiter", function()
+      local line = 26
+      local c = cell.find_surrounding(nil, line)
+      assert.is.Not.Nil(c)
+      ---@cast c - ?
+      assert.are_equal(c.first_line, 26)
+      assert.are_equal(c.last_line, 33)
+    end)
+
+    it("returns nil if there is no surrounding cell", function()
+      local init_pos = { 3, 0 }
+      api.nvim_win_set_cursor(0, init_pos)
+      local c = cell.find_surrounding()
+      assert.is_nil(c)
     end)
   end)
 end)
