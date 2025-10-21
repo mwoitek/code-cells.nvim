@@ -148,5 +148,50 @@ describe("code-cells.api.textobject", function()
         assert.are.same(new_pos, init_pos)
       end
     )
+
+    it("can skip blank lines when selecting the inner range", function()
+      local init_pos = { 15, 0 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      vim.cmd "normal! v"
+      to.textobject(nil, true, { skip_blanks = true })
+
+      local mode = api.nvim_get_mode().mode
+      assert.are_equal(mode, "V")
+
+      local selection = helpers.get_selection_range() ---@cast selection - ?
+      assert.are.same(selection.first, { 17, 1 })
+      assert.are.same(selection.last, { 22, 2 })
+    end)
+
+    it("selects the outer range when inside the very last cell", function()
+      local init_pos = { 44, 8 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      vim.cmd "normal! v"
+      to.textobject()
+
+      local mode = api.nvim_get_mode().mode
+      assert.are_equal(mode, "V")
+
+      local selection = helpers.get_selection_range() ---@cast selection - ?
+      assert.are.same(selection.first, { 42, 1 })
+      assert.are.same(selection.last, { 44, 17 })
+    end)
+
+    it("selects the inner range when inside the very last cell", function()
+      local init_pos = { 42, 3 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      vim.cmd "normal! v"
+      to.textobject(nil, true)
+
+      local mode = api.nvim_get_mode().mode
+      assert.are_equal(mode, "V")
+
+      local selection = helpers.get_selection_range() ---@cast selection - ?
+      assert.are.same(selection.first, { 43, 1 })
+      assert.are.same(selection.last, { 44, 17 })
+    end)
   end)
 end)
