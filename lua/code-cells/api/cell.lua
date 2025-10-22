@@ -1,6 +1,6 @@
 local M = {}
 
-local MODELINE_REGEX = vim.regex([[\V\(\.\*\s\+\)\=\(vi\|vim\|Vim\|ex\):\s\*]])
+local MODELINE_REGEX = vim.regex([[\v^(.*\s+)=([Vv]im=|ex)([<\=>]=\d+)=\:\s*]])
 
 local api = vim.api
 local fn = vim.fn
@@ -27,23 +27,25 @@ function Cell.new(first_line, last_line)
     last_line = last_line or api.nvim_buf_line_count(0),
   }
   obj = setmetatable(obj, Cell)
-  obj:remove_modeline()
+  obj:remove_modelines()
   return obj
 end
 
-function Cell:remove_modeline()
-  if self.first_line < vim.api.nvim_buf_line_count(0) - vim.o.modelines then return end
+function Cell:remove_modelines()
+  if self.first_line < api.nvim_buf_line_count(0) - vim.o.modelines then return end
 
-  local line = self.last_line
-  local count = 0
+  local iter_first = self.last_line - vim.o.modelines
+  iter_first = math.max(iter_first, self.first_line)
+  local new_last ---@type integer?
 
-  while line > self.first_line and count < vim.o.modelines do
-    if MODELINE_REGEX:match_line(0, line - 1) then break end
-    line = line - 1
-    count = count + 1
+  for line = iter_first, self.last_line - 1 do
+    if MODELINE_REGEX:match_line(0, line) then
+      new_last = line
+      break
+    end
   end
 
-  if line > self.first_line and count < vim.o.modelines then self.last_line = line - 1 end
+  if new_last then self.last_line = new_last end
 end
 
 ---@return integer # First line of the cell's inner layer
