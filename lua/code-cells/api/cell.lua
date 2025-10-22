@@ -89,12 +89,12 @@ end
 ---@return integer # Cell's first line for the given layer
 ---@return integer # Cell's last line for the given layer
 function Cell:range(layer)
-  if layer == "outer" then
-    return self.first_line, self.last_line
-  elseif layer == "inner" then
+  if layer == "inner" then
     return self:inner()
-  else
+  elseif layer == "core" then
     return self:core()
+  else
+    return self.first_line, self.last_line
   end
 end
 
@@ -104,7 +104,7 @@ end
 ---@param position cells.cell.Position Jump position (first or last line)
 function Cell:jump(layer, position)
   local first, last = self:range(layer)
-  local line = position == "first" and first or last
+  local line = position == "last" and last or first
   api.nvim_win_set_cursor(0, { line, 0 })
 end
 
@@ -147,8 +147,7 @@ function M.find_closest(delimiter, line)
   local surrounding = M.find_surrounding(delimiter, line)
   if surrounding then return surrounding end
 
-  local delim = require("code-cells.api.delimiter")
-  local lnums = delim.find_below(delimiter, {
+  local lnums = require("code-cells.api.delimiter").find_below(delimiter, {
     line = line,
     max_matches = 2,
   })
