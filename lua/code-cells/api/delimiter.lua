@@ -116,10 +116,12 @@ function M.find_above(delimiter, opts)
     include_line = false,
     max_matches = line_count + 1,
   })
-  opts.line = min(opts.line, line_count)
 
-  local last_line = opts.include_line and opts.line or opts.line - 1
-  if last_line == 0 then return end
+  local last_line = min(opts.line, line_count)
+  if not opts.include_line then
+    if last_line == 1 then return end
+    last_line = last_line - 1
+  end
 
   return M.find(delimiter, last_line, 1, opts.max_matches)
 end
@@ -141,10 +143,12 @@ function M.find_below(delimiter, opts)
     include_line = false,
     max_matches = line_count + 1,
   })
-  opts.line = min(opts.line, line_count)
 
-  local first_line = opts.include_line and opts.line or opts.line + 1
-  if first_line > line_count then return end
+  local first_line = min(opts.line, line_count)
+  if not opts.include_line then
+    if first_line == line_count then return end
+    first_line = first_line + 1
+  end
 
   return M.find(delimiter, first_line, line_count, opts.max_matches)
 end
