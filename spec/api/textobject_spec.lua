@@ -165,7 +165,7 @@ describe("code-cells.api.textobject", function()
     end)
 
     it("selects the outer range when inside the very last cell", function()
-      local init_pos = { 44, 8 }
+      local init_pos = { 44, 5 }
       api.nvim_win_set_cursor(0, init_pos)
 
       vim.cmd("normal! v")
@@ -176,7 +176,7 @@ describe("code-cells.api.textobject", function()
 
       local selection = helpers.get_selection_range() ---@cast selection - ?
       assert.are.same(selection.first, { 42, 1 })
-      assert.are.same(selection.last, { 44, 17 })
+      assert.are.same(selection.last, { 46, 1 })
     end)
 
     it("selects the inner range when inside the very last cell", function()
@@ -191,7 +191,7 @@ describe("code-cells.api.textobject", function()
 
       local selection = helpers.get_selection_range() ---@cast selection - ?
       assert.are.same(selection.first, { 43, 1 })
-      assert.are.same(selection.last, { 44, 17 })
+      assert.are.same(selection.last, { 45, 18 })
     end)
   end)
 end)

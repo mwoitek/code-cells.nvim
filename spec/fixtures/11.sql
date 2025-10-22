@@ -41,4 +41,7 @@ INSERT INTO Enemies (name, species, ship) VALUES
 -- %%
 -- %%
 
+-- A random comment
+-- Another comment
+
 -- vim: readonly:
