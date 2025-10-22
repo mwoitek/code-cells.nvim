@@ -1,10 +1,10 @@
-local assert = require "luassert"
-local helpers = require "spec.helpers"
+local assert = require("luassert")
+local helpers = require("spec.helpers")
 
 local api = vim.api
 
 describe("code-cells.api.cell", function()
-  local cell = require "code-cells.api.cell"
+  local cell = require("code-cells.api.cell")
 
   after_each(helpers.unload_buffer)
 
@@ -12,7 +12,7 @@ describe("code-cells.api.cell", function()
     local Cell = cell.Cell
 
     before_each(function()
-      helpers.edit_file "10.py"
+      helpers.edit_file("10.py")
       helpers.source_ftplugin()
     end)
 
@@ -183,7 +183,7 @@ describe("code-cells.api.cell", function()
         local first_line = 5
         local last_line = 13
         local c = Cell.new(first_line, last_line)
-        local range_first, range_last = c:range "outer"
+        local range_first, range_last = c:range("outer")
         assert.are_equal(range_first, 5)
         assert.are_equal(range_last, 13)
       end)
@@ -192,7 +192,7 @@ describe("code-cells.api.cell", function()
         local first_line = 5
         local last_line = 13
         local c = Cell.new(first_line, last_line)
-        local range_first, range_last = c:range "inner"
+        local range_first, range_last = c:range("inner")
         assert.are_equal(range_first, 6)
         assert.are_equal(range_last, 12)
       end)
@@ -201,7 +201,7 @@ describe("code-cells.api.cell", function()
         local first_line = 5
         local last_line = 13
         local c = Cell.new(first_line, last_line)
-        local range_first, range_last = c:range "core"
+        local range_first, range_last = c:range("core")
         assert.are_equal(range_first, 8)
         assert.are_equal(range_last, 10)
       end)
@@ -299,7 +299,7 @@ describe("code-cells.api.cell", function()
         local last_line = 13
         local c = Cell.new(first_line, last_line)
 
-        vim.cmd "normal! v"
+        vim.cmd("normal! v")
         local layer = "outer"
         c:select(layer)
 
@@ -316,7 +316,7 @@ describe("code-cells.api.cell", function()
         local last_line = 13
         local c = Cell.new(first_line, last_line)
 
-        vim.cmd "normal! v"
+        vim.cmd("normal! v")
         local layer = "inner"
         c:select(layer)
 
@@ -333,7 +333,7 @@ describe("code-cells.api.cell", function()
         local last_line = 13
         local c = Cell.new(first_line, last_line)
 
-        vim.cmd "normal! v"
+        vim.cmd("normal! v")
         local layer = "core"
         c:select(layer)
 
@@ -351,7 +351,7 @@ describe("code-cells.api.cell", function()
         local c = Cell.new(first_line, last_line)
 
         local init_pos = api.nvim_win_get_cursor(0)
-        c:select "outer"
+        c:select("outer")
 
         local mode = api.nvim_get_mode().mode
         assert.are.Not.equal(mode, "V")
@@ -365,7 +365,7 @@ describe("code-cells.api.cell", function()
 
   describe(".find_surrounding()", function()
     before_each(function()
-      helpers.edit_file "11.sql"
+      helpers.edit_file("11.sql")
       helpers.source_ftplugin()
     end)
 
@@ -409,7 +409,7 @@ describe("code-cells.api.cell", function()
 
   describe(".find_closest()", function()
     before_each(function()
-      helpers.edit_file "11.sql"
+      helpers.edit_file("11.sql")
       helpers.source_ftplugin()
     end)
 

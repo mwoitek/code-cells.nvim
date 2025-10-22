@@ -1,10 +1,10 @@
-local assert = require "luassert"
-local helpers = require "spec.helpers"
+local assert = require("luassert")
+local helpers = require("spec.helpers")
 
 local api = vim.api
 
 describe("code-cells.api.delimiter", function()
-  local delimiter = require "code-cells.api.delimiter"
+  local delimiter = require("code-cells.api.delimiter")
 
   after_each(helpers.unload_buffer)
 
@@ -24,7 +24,7 @@ describe("code-cells.api.delimiter", function()
 
   describe(".find()", function()
     it("finds every match in a valid range", function()
-      helpers.edit_file "01.py"
+      helpers.edit_file("01.py")
       helpers.source_ftplugin()
       local first_line = 3
       local last_line = 20
@@ -34,7 +34,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("finds matches in a valid range while respecting `max_matches`", function()
-      helpers.edit_file "08.rb"
+      helpers.edit_file("08.rb")
       helpers.source_ftplugin()
       local first_line = 2
       local last_line = 10
@@ -45,7 +45,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("returns nil if no match is found in a valid range", function()
-      helpers.edit_file "07.hs"
+      helpers.edit_file("07.hs")
       helpers.source_ftplugin()
       local first_line = 5
       local last_line = 8
@@ -54,7 +54,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("handles a valid range given in the reverse order", function()
-      helpers.edit_file "03.jl"
+      helpers.edit_file("03.jl")
       helpers.source_ftplugin()
       local first_line = 16
       local last_line = 1
@@ -66,7 +66,7 @@ describe("code-cells.api.delimiter", function()
 
   describe(".find_above()", function()
     it("finds every match above the current line", function()
-      helpers.edit_file "05.js"
+      helpers.edit_file("05.js")
       helpers.source_ftplugin()
       local init_pos = { 15, 4 }
       api.nvim_win_set_cursor(0, init_pos)
@@ -76,7 +76,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("finds every match above the current line when the delimiter is explicitly given", function()
-      helpers.edit_file "02.R"
+      helpers.edit_file("02.R")
       local init_pos = { 24, 4 }
       api.nvim_win_set_cursor(0, init_pos)
       local delim = "# %%"
@@ -86,7 +86,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("finds every match above a specified line (exclusive)", function()
-      helpers.edit_file "09.lua"
+      helpers.edit_file("09.lua")
       helpers.source_ftplugin()
       local matches = delimiter.find_above(nil, {
         line = 13,
@@ -97,7 +97,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("finds every match above a specified line (inclusive)", function()
-      helpers.edit_file "09.lua"
+      helpers.edit_file("09.lua")
       helpers.source_ftplugin()
       local matches = delimiter.find_above(nil, {
         line = 13,
@@ -108,7 +108,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("finds every match above a specified line while respecting `max_matches`", function()
-      helpers.edit_file "09.lua"
+      helpers.edit_file("09.lua")
       helpers.source_ftplugin()
       local matches = delimiter.find_above(nil, {
         line = 25,
@@ -119,7 +119,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("returns nil when no match is found above", function()
-      helpers.edit_file "06.clj"
+      helpers.edit_file("06.clj")
       helpers.source_ftplugin()
       local init_pos = { 1, 14 }
       api.nvim_win_set_cursor(0, init_pos)
@@ -130,7 +130,7 @@ describe("code-cells.api.delimiter", function()
 
   describe(".find_all()", function()
     it("finds all matches when the default argument is used", function()
-      helpers.edit_file "09.lua"
+      helpers.edit_file("09.lua")
       helpers.source_ftplugin()
       local matches = delimiter.find_all()
       local exp_matches = { 1, 4, 13, 18, 21, 38, 46, 49, 62 }
@@ -138,7 +138,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("finds all matches when the delimiter is explicitly given", function()
-      helpers.edit_file "02.R"
+      helpers.edit_file("02.R")
       local delim = "# %%"
       local matches = delimiter.find_all(delim)
       local exp_matches = { 1, 4, 23 }
@@ -148,7 +148,7 @@ describe("code-cells.api.delimiter", function()
 
   describe(".find_nth()", function()
     it("finds next delimiter starting from the current line (exclusive)", function()
-      helpers.edit_file "04.sql"
+      helpers.edit_file("04.sql")
       helpers.source_ftplugin()
       local init_pos = { 1, 4 }
       api.nvim_win_set_cursor(0, init_pos)
@@ -159,7 +159,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("finds next delimiter starting from the current line (inclusive)", function()
-      helpers.edit_file "04.sql"
+      helpers.edit_file("04.sql")
       helpers.source_ftplugin()
       local init_pos = { 1, 4 }
       api.nvim_win_set_cursor(0, init_pos)
@@ -170,7 +170,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("finds previous delimiter starting from the current line (exclusive)", function()
-      helpers.edit_file "01.py"
+      helpers.edit_file("01.py")
       helpers.source_ftplugin()
       local init_pos = { 10, 3 }
       api.nvim_win_set_cursor(0, init_pos)
@@ -181,7 +181,7 @@ describe("code-cells.api.delimiter", function()
     end)
 
     it("finds previous delimiter starting from the current line (inclusive)", function()
-      helpers.edit_file "01.py"
+      helpers.edit_file("01.py")
       helpers.source_ftplugin()
       local init_pos = { 10, 3 }
       api.nvim_win_set_cursor(0, init_pos)

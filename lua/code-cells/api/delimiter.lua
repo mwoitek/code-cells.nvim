@@ -10,7 +10,7 @@ local min = math.min
 local function get_user_delimiter(filetype)
   if filetype == "" then return end
   local name = string.format("%s_delim", filetype)
-  for _, vars in ipairs { vim.b, vim.g } do
+  for _, vars in ipairs({ vim.b, vim.g }) do
     local var = vars[name]
     if type(var) == "string" then return var end
   end
@@ -19,7 +19,7 @@ end
 ---@param commentstring string
 ---@return string? # Cell delimiter built from commentstring
 local function build_delimiter(commentstring)
-  return commentstring:find "%%s" and commentstring:format "%%" or nil
+  return commentstring:find("%%s") and commentstring:format("%%") or nil
 end
 
 ---@return string? # Cell delimiter
@@ -56,7 +56,7 @@ function M.find(delimiter, first_line, last_line, max_matches)
   local delim_pattern = M.get_pattern(delimiter)
   if not delim_pattern then return end
 
-  local valid = require "code-cells.core.validation"
+  local valid = require("code-cells.core.validation")
   vim.validate("first_line", first_line, valid.positive_integer, "positive integer")
   vim.validate("last_line", last_line, valid.positive_integer, "positive integer")
   vim.validate("max_matches", max_matches, valid.positive_integer, true, "positive integer")
@@ -106,13 +106,13 @@ function M.find_above(delimiter, opts)
   vim.validate("opts", opts, "table", true)
   if opts then
     vim.validate("include_line", opts.include_line, "boolean", true)
-    local valid = require "code-cells.core.validation"
+    local valid = require("code-cells.core.validation")
     vim.validate("line", opts.line, valid.positive_integer, true, "positive integer")
   end
 
   local line_count = api.nvim_buf_line_count(0)
   opts = vim.tbl_extend("keep", opts or {}, {
-    line = fn.line ".",
+    line = fn.line("."),
     include_line = false,
     max_matches = line_count + 1,
   })
@@ -131,13 +131,13 @@ function M.find_below(delimiter, opts)
   vim.validate("opts", opts, "table", true)
   if opts then
     vim.validate("include_line", opts.include_line, "boolean", true)
-    local valid = require "code-cells.core.validation"
+    local valid = require("code-cells.core.validation")
     vim.validate("line", opts.line, valid.positive_integer, true, "positive integer")
   end
 
   local line_count = api.nvim_buf_line_count(0)
   opts = vim.tbl_extend("keep", opts or {}, {
-    line = fn.line ".",
+    line = fn.line("."),
     include_line = false,
     max_matches = line_count + 1,
   })
@@ -174,7 +174,7 @@ function M.find_nth(delimiter, n, opts)
 
   vim.validate("opts", opts, "table", true)
 
-  local valid = require "code-cells.core.validation"
+  local valid = require("code-cells.core.validation")
   vim.validate("n", n, valid.non_zero_integer, "non-zero integer")
 
   if opts then
@@ -184,7 +184,7 @@ function M.find_nth(delimiter, n, opts)
   end
 
   opts = vim.tbl_extend("keep", opts or {}, {
-    line = fn.line ".",
+    line = fn.line("."),
     include_line = false,
     allow_less = false,
   })

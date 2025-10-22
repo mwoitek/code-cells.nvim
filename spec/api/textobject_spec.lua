@@ -1,13 +1,13 @@
-local assert = require "luassert"
-local helpers = require "spec.helpers"
+local assert = require("luassert")
+local helpers = require("spec.helpers")
 
 local api = vim.api
 
 describe("code-cells.api.textobject", function()
-  local to = require "code-cells.api.textobject"
+  local to = require("code-cells.api.textobject")
 
   before_each(function()
-    helpers.edit_file "11.sql"
+    helpers.edit_file("11.sql")
     helpers.source_ftplugin()
   end)
 
@@ -55,7 +55,7 @@ describe("code-cells.api.textobject", function()
       local init_pos = { 17, 21 }
       api.nvim_win_set_cursor(0, init_pos)
 
-      vim.cmd "normal! v"
+      vim.cmd("normal! v")
       to.textobject()
 
       local mode = api.nvim_get_mode().mode
@@ -70,7 +70,7 @@ describe("code-cells.api.textobject", function()
       local init_pos = { 32, 11 }
       api.nvim_win_set_cursor(0, init_pos)
 
-      vim.cmd "normal! v"
+      vim.cmd("normal! v")
       to.textobject(nil, true)
 
       local mode = api.nvim_get_mode().mode
@@ -85,7 +85,7 @@ describe("code-cells.api.textobject", function()
       local init_pos = { 3, 0 }
       api.nvim_win_set_cursor(0, init_pos)
 
-      vim.cmd "normal! v"
+      vim.cmd("normal! v")
       to.textobject(nil, false, { lookahead = true })
 
       local mode = api.nvim_get_mode().mode
@@ -100,7 +100,7 @@ describe("code-cells.api.textobject", function()
       local init_pos = { 2, 0 }
       api.nvim_win_set_cursor(0, init_pos)
 
-      vim.cmd "normal! v"
+      vim.cmd("normal! v")
       to.textobject(nil, true, { lookahead = true })
 
       local mode = api.nvim_get_mode().mode
@@ -117,14 +117,14 @@ describe("code-cells.api.textobject", function()
         local init_pos = { 1, 0 }
         api.nvim_win_set_cursor(0, init_pos)
 
-        vim.cmd "normal! v"
+        vim.cmd("normal! v")
         to.textobject(nil, false, { lookahead = false })
 
         local mode = api.nvim_get_mode().mode
         assert.are.Not.equal(mode, "V")
         assert.are_equal(mode, "v")
 
-        vim.cmd "normal! v"
+        vim.cmd("normal! v")
         local new_pos = api.nvim_win_get_cursor(0)
         assert.are.same(new_pos, init_pos)
       end
@@ -136,14 +136,14 @@ describe("code-cells.api.textobject", function()
         local init_pos = { 5, 0 }
         api.nvim_win_set_cursor(0, init_pos)
 
-        vim.cmd "normal! v"
+        vim.cmd("normal! v")
         to.textobject(nil, true, { lookahead = false })
 
         local mode = api.nvim_get_mode().mode
         assert.are.Not.equal(mode, "V")
         assert.are_equal(mode, "v")
 
-        vim.cmd "normal! v"
+        vim.cmd("normal! v")
         local new_pos = api.nvim_win_get_cursor(0)
         assert.are.same(new_pos, init_pos)
       end
@@ -153,7 +153,7 @@ describe("code-cells.api.textobject", function()
       local init_pos = { 15, 0 }
       api.nvim_win_set_cursor(0, init_pos)
 
-      vim.cmd "normal! v"
+      vim.cmd("normal! v")
       to.textobject(nil, true, { skip_blanks = true })
 
       local mode = api.nvim_get_mode().mode
@@ -168,7 +168,7 @@ describe("code-cells.api.textobject", function()
       local init_pos = { 44, 8 }
       api.nvim_win_set_cursor(0, init_pos)
 
-      vim.cmd "normal! v"
+      vim.cmd("normal! v")
       to.textobject()
 
       local mode = api.nvim_get_mode().mode
@@ -183,7 +183,7 @@ describe("code-cells.api.textobject", function()
       local init_pos = { 42, 3 }
       api.nvim_win_set_cursor(0, init_pos)
 
-      vim.cmd "normal! v"
+      vim.cmd("normal! v")
       to.textobject(nil, true)
 
       local mode = api.nvim_get_mode().mode

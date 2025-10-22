@@ -116,9 +116,9 @@ function Cell:select(layer)
 
   local first, last = self:range(layer)
   api.nvim_win_set_cursor(0, { first, 0 })
-  vim.cmd "normal! V"
+  vim.cmd("normal! V")
 
-  local last_col = fn.col { last, "$" } - 1
+  local last_col = fn.col({ last, "$" }) - 1
   api.nvim_win_set_cursor(0, { last, last_col })
 end
 
@@ -126,7 +126,7 @@ end
 ---@param line integer? Reference line
 ---@return cells.Cell? # Surrounding cell, or nil if there is none
 function M.find_surrounding(delimiter, line)
-  local delim = require "code-cells.api.delimiter"
+  local delim = require("code-cells.api.delimiter")
 
   local first_line = delim.find_nth(delimiter, -1, {
     line = line,
@@ -147,7 +147,7 @@ function M.find_closest(delimiter, line)
   local surrounding = M.find_surrounding(delimiter, line)
   if surrounding then return surrounding end
 
-  local delim = require "code-cells.api.delimiter"
+  local delim = require("code-cells.api.delimiter")
   local lnums = delim.find_below(delimiter, {
     line = line,
     max_matches = 2,

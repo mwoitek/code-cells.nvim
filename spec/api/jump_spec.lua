@@ -1,8 +1,8 @@
-local assert = require "luassert"
-local helpers = require "spec.helpers"
+local assert = require("luassert")
+local helpers = require("spec.helpers")
 
 describe("code-cells.api.jump", function()
-  local jump = require "code-cells.api.jump"
+  local jump = require("code-cells.api.jump")
 
   after_each(helpers.unload_buffer)
 
@@ -22,7 +22,7 @@ describe("code-cells.api.jump", function()
     end)
 
     it("moves the cursor as expected when default arguments are used", function()
-      helpers.edit_file "01.py"
+      helpers.edit_file("01.py")
       helpers.source_ftplugin()
       local init_pos = { 11, 28 }
       vim.api.nvim_win_set_cursor(0, init_pos)
@@ -33,7 +33,7 @@ describe("code-cells.api.jump", function()
     end)
 
     it("moves the cursor as expected when the delimiter is explicitly given", function()
-      helpers.edit_file "02.R"
+      helpers.edit_file("02.R")
       local init_pos = { 12, 6 }
       vim.api.nvim_win_set_cursor(0, init_pos)
       local delimiter = "# %%"
@@ -45,7 +45,7 @@ describe("code-cells.api.jump", function()
     end)
 
     it("moves the cursor as expected when the count is greater than 1", function()
-      helpers.edit_file "03.jl"
+      helpers.edit_file("03.jl")
       helpers.source_ftplugin()
       local init_pos = { 2, 17 }
       vim.api.nvim_win_set_cursor(0, init_pos)
@@ -59,7 +59,7 @@ describe("code-cells.api.jump", function()
     it(
       "moves the cursor as expected when the count is greater than the number of cells that follow",
       function()
-        helpers.edit_file "05.js"
+        helpers.edit_file("05.js")
         helpers.source_ftplugin()
         local init_pos = { 3, 0 }
         vim.api.nvim_win_set_cursor(0, init_pos)
@@ -72,7 +72,7 @@ describe("code-cells.api.jump", function()
     )
 
     it("moves the cursor as expected when the count is negative", function()
-      helpers.edit_file "06.clj"
+      helpers.edit_file("06.clj")
       helpers.source_ftplugin()
       local init_pos = { 6, 25 }
       vim.api.nvim_win_set_cursor(0, init_pos)
@@ -84,7 +84,7 @@ describe("code-cells.api.jump", function()
     end)
 
     it("does nothing when there is no next cell", function()
-      helpers.edit_file "04.sql"
+      helpers.edit_file("04.sql")
       helpers.source_ftplugin()
       local init_pos = { 10, 11 }
       vim.api.nvim_win_set_cursor(0, init_pos)
@@ -95,9 +95,9 @@ describe("code-cells.api.jump", function()
     end)
 
     it("does nothing when the cursor is initally at the bottom of the buffer", function()
-      helpers.edit_file "04.sql"
+      helpers.edit_file("04.sql")
       helpers.source_ftplugin()
-      local init_pos = { vim.fn.line "$", 0 }
+      local init_pos = { vim.fn.line("$"), 0 }
       vim.api.nvim_win_set_cursor(0, init_pos)
       local count = 1
       jump.to_next(nil, count)

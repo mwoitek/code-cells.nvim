@@ -1,6 +1,6 @@
 local M = {}
 
-local assert = require "luassert"
+local assert = require("luassert")
 
 local api = vim.api
 
@@ -13,7 +13,7 @@ end
 function M.unload_buffer()
   local file_path = api.nvim_buf_get_name(0)
   if file_path == "" then return end
-  vim.cmd "bd!"
+  vim.cmd("bd!")
 end
 
 -- NOTE: The test code will be executed with nlua. This tool does NOT load
@@ -25,7 +25,7 @@ end
 function M.source_ftplugin()
   local file_path = api.nvim_buf_get_name(0)
 
-  local file_type = vim.filetype.match { filename = file_path }
+  local file_type = vim.filetype.match({ filename = file_path })
   if not file_type then
     local msg = string.format("Failed to get filetype for %s", file_path)
     error(msg)
@@ -77,8 +77,8 @@ function M.get_selection_range()
   if mode:lower() ~= "v" then return end
   vim.cmd("normal! " .. mode)
 
-  local _, first_line, first_col = unpack(vim.fn.getcharpos "'<")
-  local _, last_line, last_col = unpack(vim.fn.getcharpos "'>")
+  local _, first_line, first_col = unpack(vim.fn.getcharpos("'<"))
+  local _, last_line, last_col = unpack(vim.fn.getcharpos("'>"))
 
   return {
     first = { first_line, first_col },
