@@ -196,5 +196,29 @@ describe("code-cells.api.jump", function()
       local exp_pos = { 23, 0 }
       assert.are.same(new_pos, exp_pos)
     end)
+
+    it("does nothing when there is no previous cell", function()
+      utils.load_fixture("11.sql")
+
+      local init_pos = { 6, 3 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      jump.to_prev()
+
+      local new_pos = api.nvim_win_get_cursor(0)
+      assert.are.same(new_pos, init_pos)
+    end)
+
+    it("does nothing when the cursor is initially at the top of the buffer", function()
+      utils.load_fixture("07.hs")
+
+      local init_pos = { 1, 7 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      jump.to_prev()
+
+      local new_pos = api.nvim_win_get_cursor(0)
+      assert.are.same(new_pos, init_pos)
+    end)
   end)
 end)
