@@ -27,25 +27,27 @@ function Cell.new(first_line, last_line)
     last_line = last_line or api.nvim_buf_line_count(0),
   }
   obj = setmetatable(obj, Cell)
-  obj:remove_modelines()
-  return obj
+  return obj:skip_modelines()
 end
 
-function Cell:remove_modelines()
-  if self.first_line < api.nvim_buf_line_count(0) - vim.o.modelines then return end
+---@return cells.Cell
+function Cell:skip_modelines()
+  -- NOTE: Modelines at the top of the file are not a problem. So this method
+  -- only tries to skip those at the end.
 
-  local iter_first = self.last_line - vim.o.modelines
-  iter_first = math.max(iter_first, self.first_line)
-  local new_last ---@type integer?
+  local diff = api.nvim_buf_line_count(0) - vim.o.modelines
+  local line = math.max(diff, self.first_line) + 1
+  if line > self.last_line then return self end
 
-  for line = iter_first, self.last_line - 1 do
-    if MODELINE_REGEX:match_line(0, line) then
-      new_last = line
-      break
-    end
+  local count = 0
+  while line <= self.last_line and count < vim.o.modelines do
+    if MODELINE_REGEX:match_line(0, line - 1) then break end
+    line = line + 1
+    count = count + 1
   end
 
-  if new_last then self.last_line = new_last end
+  if line <= self.last_line and count < vim.o.modelines then self.last_line = line - 1 end
+  return self
 end
 
 ---@return integer # First line of the cell's inner layer
