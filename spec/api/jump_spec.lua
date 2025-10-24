@@ -123,4 +123,78 @@ describe("code-cells.api.jump", function()
       assert.are.same(new_pos, init_pos)
     end)
   end)
+
+  describe(".to_prev()", function()
+    it("jumps as expected when default arguments are used", function()
+      utils.load_fixture("09.lua")
+
+      local init_pos = { 24, 10 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      jump.to_prev()
+
+      local new_pos = api.nvim_win_get_cursor(0)
+      local exp_pos = { 21, 0 }
+      assert.are.same(new_pos, exp_pos)
+    end)
+
+    it("jumps as expected when the delimiter is given explicitly", function()
+      utils.load_fixture("11.sql")
+
+      local init_pos = { 18, 27 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      local delimiter = "-- %%"
+      jump.to_prev(delimiter)
+
+      local new_pos = api.nvim_win_get_cursor(0)
+      local exp_pos = { 14, 0 }
+      assert.are.same(new_pos, exp_pos)
+    end)
+
+    it("jumps as expected when the count is greater than 1", function()
+      utils.load_fixture("10.py")
+
+      local init_pos = { 18, 9 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      local count = 2
+      jump.to_prev(nil, count)
+
+      local new_pos = api.nvim_win_get_cursor(0)
+      local exp_pos = { 5, 0 }
+      assert.are.same(new_pos, exp_pos)
+    end)
+
+    it(
+      "jumps as expected when the count is greater than the number of cells that come before",
+      function()
+        utils.load_fixture("11.sql")
+
+        local init_pos = { 30, 10 }
+        api.nvim_win_set_cursor(0, init_pos)
+
+        local count = 4
+        jump.to_prev(nil, count)
+
+        local new_pos = api.nvim_win_get_cursor(0)
+        local exp_pos = { 6, 0 }
+        assert.are.same(new_pos, exp_pos)
+      end
+    )
+
+    it("jumps as expected when the count is negative", function()
+      utils.load_fixture("02.R")
+
+      local init_pos = { 9, 22 }
+      api.nvim_win_set_cursor(0, init_pos)
+
+      local count = -1
+      jump.to_prev(nil, count)
+
+      local new_pos = api.nvim_win_get_cursor(0)
+      local exp_pos = { 23, 0 }
+      assert.are.same(new_pos, exp_pos)
+    end)
+  end)
 end)
