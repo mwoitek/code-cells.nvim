@@ -5,15 +5,19 @@ local assert = require("luassert")
 local api = vim.api
 
 ---@param file_name string
-function M.edit_file(file_name)
+---@param ftplugin boolean?
+function M.load_fixture(file_name, ftplugin)
+  if ftplugin == nil then ftplugin = true end
+
   local file_path = vim.fs.joinpath("spec", "fixtures", file_name)
   vim.cmd.edit(file_path)
+
+  if ftplugin then M.source_ftplugin(file_path) end
 end
 
 function M.unload_buffer()
   local file_path = api.nvim_buf_get_name(0)
-  if file_path == "" then return end
-  vim.cmd("bd!")
+  if file_path ~= "" then vim.cmd("bd!") end
 end
 
 -- NOTE: The test code will be executed with nlua. This tool does NOT load
@@ -22,14 +26,19 @@ end
 -- file, and then sources it. Since I'm relying on `vim.filetype.match`, this
 -- function does NOT work for all filetypes (e.g., it fails for R files).
 -- However, for a test helper, its code is good enough.
-function M.source_ftplugin()
-  local file_path = api.nvim_buf_get_name(0)
+local sourced = {} ---@type table<string, boolean>
+
+---@param file_path string?
+function M.source_ftplugin(file_path)
+  file_path = file_path or api.nvim_buf_get_name(0)
 
   local file_type = vim.filetype.match({ filename = file_path })
   if not file_type then
     local msg = string.format("Failed to get filetype for %s", file_path)
     error(msg)
   end
+
+  if sourced[file_type] then return end
 
   local pattern = string.format("ftplugin/%s.vim", file_type)
   local plugin_files = api.nvim_get_runtime_file(pattern, true)
@@ -38,9 +47,9 @@ function M.source_ftplugin()
   local plugin_file = table.foreach(
     plugin_files,
     ---@param f string
+    ---@return string?
     function(_, f)
-      local start = string.find(f, "runtime")
-      if type(start) == "number" then return f end
+      if M.string_contains(f, "runtime") then return f end
     end
   )
   if not plugin_file then
@@ -49,6 +58,7 @@ function M.source_ftplugin()
   end
 
   vim.cmd.source(plugin_file)
+  sourced[file_type] = true
 end
 
 ---@param s string
@@ -56,7 +66,7 @@ end
 ---@return boolean
 function M.string_contains(s, pattern)
   local start = string.find(s, pattern)
-  return type(start) == "number"
+  return start ~= nil
 end
 
 ---@param type_ string
