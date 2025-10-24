@@ -1,7 +1,5 @@
 local M = {}
 
-local MODELINE_REGEX = vim.regex([[\v^(.*\s+)=([Vv]im=|ex)([<\=>]=\d+)=\:\s*]])
-
 local api = vim.api
 local fn = vim.fn
 
@@ -16,19 +14,21 @@ end
 ---@field first_line integer Cell's first line
 ---@field last_line integer Cell's last line
 local Cell = {}
-Cell.__index = Cell
+local Cell_mt = { __index = Cell }
 
 ---@param first_line integer Cell's first line
 ---@param last_line integer? Cell's last line
 ---@return cells.Cell # Code cell
 function Cell.new(first_line, last_line)
-  local obj = {
+  local self = {
     first_line = first_line,
     last_line = last_line or api.nvim_buf_line_count(0),
   }
-  obj = setmetatable(obj, Cell)
-  return obj:skip_modelines()
+  self = setmetatable(self, Cell_mt)
+  return self:skip_modelines()
 end
+
+local MODELINE_REGEX = vim.regex([[\v^(.*\s+)=([Vv]im=|ex)([<\=>]=\d+)=\:\s*]])
 
 ---@return cells.Cell
 function Cell:skip_modelines()
