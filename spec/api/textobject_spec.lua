@@ -1,17 +1,16 @@
 local assert = require("luassert")
-local helpers = require("spec.helpers")
+local utils = require("spec.utils")
 
 local api = vim.api
 
 describe("code-cells.api.textobject", function()
   local to = require("code-cells.api.textobject")
 
-  before_each(function()
-    helpers.edit_file("11.sql")
-    helpers.source_ftplugin()
-  end)
+  setup(function() vim.cmd("filetype on | filetype plugin on") end)
 
-  after_each(helpers.unload_buffer)
+  before_each(function() utils.load_fixture("11.sql") end)
+
+  after_each(utils.unload_buffer)
 
   describe(".textobject()", function()
     it("throws an error when `inner` is invalid", function()
@@ -22,19 +21,19 @@ describe("code-cells.api.textobject", function()
         table = { fail = true },
       }
       for _, inner in pairs(invalid_input) do
-        helpers.check_valid_msg("boolean", to.textobject, nil, inner)
+        utils.check_valid_msg("boolean", to.textobject, nil, inner)
       end
     end)
 
     it("throws an error when `opts` is invalid", function()
       local opts_1 = "INVALID"
-      helpers.check_valid_msg("table", to.textobject, nil, true, opts_1)
+      utils.check_valid_msg("table", to.textobject, nil, true, opts_1)
 
       local opts_2 = { lookahead = 10 }
-      helpers.check_valid_msg("boolean", to.textobject, nil, false, opts_2)
+      utils.check_valid_msg("boolean", to.textobject, nil, false, opts_2)
 
       local opts_3 = { skip_blanks = {} }
-      helpers.check_valid_msg("boolean", to.textobject, nil, nil, opts_3)
+      utils.check_valid_msg("boolean", to.textobject, nil, nil, opts_3)
     end)
 
     it("does nothing when not in visual mode", function()
@@ -61,7 +60,7 @@ describe("code-cells.api.textobject", function()
       local mode = api.nvim_get_mode().mode
       assert.are_equal(mode, "V")
 
-      local selection = helpers.get_selection_range() ---@cast selection - ?
+      local selection = utils.get_selection_range() ---@cast selection - ?
       assert.are.same(selection.first, { 14, 1 })
       assert.are.same(selection.last, { 25, 1 })
     end)
@@ -76,7 +75,7 @@ describe("code-cells.api.textobject", function()
       local mode = api.nvim_get_mode().mode
       assert.are_equal(mode, "V")
 
-      local selection = helpers.get_selection_range() ---@cast selection - ?
+      local selection = utils.get_selection_range() ---@cast selection - ?
       assert.are.same(selection.first, { 27, 1 })
       assert.are.same(selection.last, { 33, 44 })
     end)
@@ -91,7 +90,7 @@ describe("code-cells.api.textobject", function()
       local mode = api.nvim_get_mode().mode
       assert.are_equal(mode, "V")
 
-      local selection = helpers.get_selection_range() ---@cast selection - ?
+      local selection = utils.get_selection_range() ---@cast selection - ?
       assert.are.same(selection.first, { 6, 1 })
       assert.are.same(selection.last, { 13, 1 })
     end)
@@ -106,7 +105,7 @@ describe("code-cells.api.textobject", function()
       local mode = api.nvim_get_mode().mode
       assert.are_equal(mode, "V")
 
-      local selection = helpers.get_selection_range() ---@cast selection - ?
+      local selection = utils.get_selection_range() ---@cast selection - ?
       assert.are.same(selection.first, { 7, 1 })
       assert.are.same(selection.last, { 12, 2 })
     end)
@@ -159,7 +158,7 @@ describe("code-cells.api.textobject", function()
       local mode = api.nvim_get_mode().mode
       assert.are_equal(mode, "V")
 
-      local selection = helpers.get_selection_range() ---@cast selection - ?
+      local selection = utils.get_selection_range() ---@cast selection - ?
       assert.are.same(selection.first, { 17, 1 })
       assert.are.same(selection.last, { 22, 2 })
     end)
@@ -174,7 +173,7 @@ describe("code-cells.api.textobject", function()
       local mode = api.nvim_get_mode().mode
       assert.are_equal(mode, "V")
 
-      local selection = helpers.get_selection_range() ---@cast selection - ?
+      local selection = utils.get_selection_range() ---@cast selection - ?
       assert.are.same(selection.first, { 42, 1 })
       assert.are.same(selection.last, { 46, 1 })
     end)
@@ -189,7 +188,7 @@ describe("code-cells.api.textobject", function()
       local mode = api.nvim_get_mode().mode
       assert.are_equal(mode, "V")
 
-      local selection = helpers.get_selection_range() ---@cast selection - ?
+      local selection = utils.get_selection_range() ---@cast selection - ?
       assert.are.same(selection.first, { 43, 1 })
       assert.are.same(selection.last, { 45, 18 })
     end)

@@ -1,23 +1,22 @@
 local assert = require("luassert")
-local helpers = require("spec.helpers")
+local utils = require("spec.utils")
 
 local api = vim.api
 
 describe("code-cells.api.cell", function()
   local cell = require("code-cells.api.cell")
 
-  after_each(helpers.unload_buffer)
+  setup(function() vim.cmd("filetype on | filetype plugin on") end)
+
+  after_each(utils.unload_buffer)
 
   describe(".Cell", function()
     local Cell = cell.Cell
 
-    before_each(function()
-      helpers.edit_file("10.py")
-      helpers.source_ftplugin()
-    end)
+    before_each(function() utils.load_fixture("10.py") end)
 
     describe(":inner()", function()
-      it([[finds the inner layer of a "normal" cell]], function()
+      it('finds the inner layer of a "normal" cell', function()
         local first_line = 1
         local last_line = 4
         local c = Cell.new(first_line, last_line)
@@ -132,7 +131,7 @@ describe("code-cells.api.cell", function()
     end)
 
     describe(":core()", function()
-      it([[finds the core layer of a "normal" cell]], function()
+      it('finds the core layer of a "normal" cell', function()
         local first_line = 1
         local last_line = 4
         local c = Cell.new(first_line, last_line)
@@ -306,7 +305,7 @@ describe("code-cells.api.cell", function()
         local mode = api.nvim_get_mode().mode
         assert.are_equal(mode, "V")
 
-        local selection = helpers.get_selection_range() ---@cast selection - ?
+        local selection = utils.get_selection_range() ---@cast selection - ?
         assert.are.same(selection.first, { 5, 1 })
         assert.are.same(selection.last, { 13, 1 })
       end)
@@ -323,7 +322,7 @@ describe("code-cells.api.cell", function()
         local mode = api.nvim_get_mode().mode
         assert.are_equal(mode, "V")
 
-        local selection = helpers.get_selection_range() ---@cast selection - ?
+        local selection = utils.get_selection_range() ---@cast selection - ?
         assert.are.same(selection.first, { 6, 1 })
         assert.are.same(selection.last, { 12, 1 })
       end)
@@ -340,7 +339,7 @@ describe("code-cells.api.cell", function()
         local mode = api.nvim_get_mode().mode
         assert.are_equal(mode, "V")
 
-        local selection = helpers.get_selection_range() ---@cast selection - ?
+        local selection = utils.get_selection_range() ---@cast selection - ?
         assert.are.same(selection.first, { 8, 1 })
         assert.are.same(selection.last, { 10, 30 })
       end)
@@ -364,10 +363,7 @@ describe("code-cells.api.cell", function()
   end)
 
   describe(".find_surrounding()", function()
-    before_each(function()
-      helpers.edit_file("11.sql")
-      helpers.source_ftplugin()
-    end)
+    before_each(function() utils.load_fixture("11.sql") end)
 
     it("finds the cell that surrounds the current line", function()
       local init_pos = { 20, 17 }
@@ -408,10 +404,7 @@ describe("code-cells.api.cell", function()
   end)
 
   describe(".find_closest()", function()
-    before_each(function()
-      helpers.edit_file("11.sql")
-      helpers.source_ftplugin()
-    end)
+    before_each(function() utils.load_fixture("11.sql") end)
 
     it("finds the cell when the cursor is inside", function()
       local init_pos = { 28, 12 }
