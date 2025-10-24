@@ -4,5 +4,6 @@ read_globals = {
   "before_each",
   "describe",
   "it",
+  "setup",
 }
 ignore = { "631" }
