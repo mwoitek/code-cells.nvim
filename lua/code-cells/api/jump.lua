@@ -12,7 +12,7 @@ end
 
 ---@param delimiter string? Cell delimiter
 ---@param count integer? Number of jumps
-function M.to_prev(delimiter, count) M.to_next(delimiter, -count) end
+function M.to_prev(delimiter, count) M.to_next(delimiter, -(count or 1)) end
 -- }}}
 
 return M
