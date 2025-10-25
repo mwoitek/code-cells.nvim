@@ -96,18 +96,16 @@ function Cell:last_non_blank()
   if last > self.first_line then return last end
 end
 
----@return integer # First line of the cell's core layer
----@return integer # Last line of the cell's core layer
+---@return integer? # First line of the cell's core layer
+---@return integer? # Last line of the cell's core layer
 function Cell:core()
   local first = self:first_non_blank()
   if not first then return self:inner() end
-  local last = assert(self:last_non_blank())
+  local last = self:last_non_blank() ---@cast last - ?
   return first, last
 end
 
----@alias cells.cell.Layer "outer"|"inner"|"core"
-
----@param layer cells.cell.Layer Cell layer
+---@param layer cells.CellLayer Cell layer
 ---@return integer # Cell's first line for the given layer
 ---@return integer # Cell's last line for the given layer
 function Cell:range(layer)
@@ -120,18 +118,18 @@ function Cell:range(layer)
   end
 end
 
----@alias cells.cell.Position "first"|"last"
-
----@param layer cells.cell.Layer Cell layer
----@param position cells.cell.Position Jump position (first or last line)
+---@param layer cells.CellLayer Cell layer
+---@param position cells.CellPosition Jump position (first or last line)
 function Cell:jump(layer, position)
   local first, last = self:range(layer)
   local line = position == "last" and last or first
   api.nvim_win_set_cursor(0, { line, 0 })
 end
 
----@param layer cells.cell.Layer Cell layer
+---@param layer cells.CellLayer Cell layer
 function Cell:select(layer)
+  -- TODO: expand existing selection
+
   local mode = api.nvim_get_mode().mode
   if mode:lower() ~= "v" then return end
   vim.cmd("normal! " .. mode)
