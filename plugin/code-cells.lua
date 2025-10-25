@@ -24,8 +24,14 @@ vim.keymap.set(
   "<Plug>(CellsObjInner)",
   function() require("code-cells.api.textobject").textobject(nil, true) end
 )
+vim.keymap.set(
+  "x",
+  "<Plug>(CellsObjCore)",
+  function() require("code-cells.api.textobject").textobject(nil, true, { skip_blanks = true }) end
+)
 vim.keymap.set("o", "<Plug>(CellsObjOuter)", "<Cmd>normal v<Plug>(CellsObjOuter)<CR>")
 vim.keymap.set("o", "<Plug>(CellsObjInner)", "<Cmd>normal v<Plug>(CellsObjInner)<CR>")
+vim.keymap.set("o", "<Plug>(CellsObjCore)", "<Cmd>normal v<Plug>(CellsObjCore)<CR>")
 -- }}}
 
 vim.g.loaded_code_cells = true

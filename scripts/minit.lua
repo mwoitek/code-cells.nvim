@@ -20,3 +20,4 @@ vim.keymap.set({ "n", "o", "x" }, "<Space>cn", "<Plug>(CellsJumpNext)")
 
 vim.keymap.set({ "o", "x" }, "ac", "<Plug>(CellsObjOuter)")
 vim.keymap.set({ "o", "x" }, "ic", "<Plug>(CellsObjInner)")
+vim.keymap.set({ "o", "x" }, "iC", "<Plug>(CellsObjCore)")
