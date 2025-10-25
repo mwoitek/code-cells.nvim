@@ -106,22 +106,27 @@ function Cell:core()
 end
 
 ---@param layer cells.CellLayer Cell layer
----@return integer # Cell's first line for the given layer
----@return integer # Cell's last line for the given layer
-function Cell:range(layer)
-  if layer == "inner" then
-    return self:inner()
-  elseif layer == "core" then
-    return self:core()
-  else
-    return self.first_line, self.last_line
+---@param force boolean? Force method to return non-nil results?
+---@return integer? # Cell's first line for the given layer
+---@return integer? # Cell's last line for the given layer
+function Cell:range(layer, force)
+  if layer == "inner" or layer == "core" then
+    local first, last = self[layer](self)
+    if first then
+      return first, last
+    elseif not force then
+      return
+    end
   end
+  return self.first_line, self.last_line
 end
 
 ---@param layer cells.CellLayer Cell layer
 ---@param position cells.CellPosition Jump position (first or last line)
 function Cell:jump(layer, position)
-  local first, last = self:range(layer)
+  local first, last = self:range(layer, true)
+  ---@cast first - ?
+  ---@cast last - ?
   local line = position == "last" and last or first
   api.nvim_win_set_cursor(0, { line, 0 })
 end
