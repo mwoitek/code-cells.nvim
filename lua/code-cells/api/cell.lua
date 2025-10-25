@@ -50,19 +50,18 @@ function Cell:skip_modelines()
   return self
 end
 
----@return integer # First line of the cell's inner layer
----@return integer # Last line of the cell's inner layer
+---@return integer? # First line of the cell's inner layer
+---@return integer? # Last line of the cell's inner layer
 function Cell:inner()
   local first = self.first_line + 1
   local last = self.last_line
-  if first > last then return self.first_line, self.last_line end
+  if first > last then return end
 
   local lstr = fn.getline(last)
   if not is_empty_string(lstr) then return first, last end
 
   last = last - 1
   if last >= first then return first, last end
-  return self.first_line, self.last_line
 end
 
 ---@return integer? # Cell's first non-blank line
@@ -138,6 +137,8 @@ function Cell:select(layer)
   vim.cmd("normal! " .. mode)
 
   local first, last = self:range(layer)
+  if not first then return end
+
   api.nvim_win_set_cursor(0, { first, 0 })
   vim.cmd("normal! V")
 
