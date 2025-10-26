@@ -29,6 +29,7 @@ end
 ---@param first integer Range's first line
 ---@param last integer Range's last line
 local function select_line_range(first, last)
+  vim.cmd.execute([["normal! \<Esc>"]])
   assert_mode("n")
   local last_col = fn.charcol({ last, "$" }) - 1
   api.nvim_win_set_cursor(0, { first, 0 })
@@ -49,13 +50,13 @@ local function textobject_outer(delimiter)
   local cell = require("code-cells.api.cell").find_closest(delimiter, ref_line)
   if not cell then return end
 
-  vim.cmd.execute([["normal! \<Esc>"]])
   select_line_range(first_line or cell.first_line, cell.last_line)
 
-  vim.b._cells_obj_active = true
+  api.nvim_buf_set_var(0, "_cells_obj_active", true)
   api.nvim_create_autocmd("ModeChanged", {
-    pattern = "V*:*",
+    buffer = 0,
     callback = function(ev)
+      if string.sub(ev.match, 1, 1) ~= "V" then return end
       api.nvim_buf_del_var(ev.buf, "_cells_obj_active")
       return true
     end,
@@ -64,15 +65,21 @@ end
 
 ---@param delimiter string? Cell delimiter
 ---@param layer cells.CellLayer Cell layer
-function M.textobject(delimiter, layer)
+local function textobject_inner(delimiter, layer)
   -- TODO: improve
-  if layer == "outer" then
-    textobject_outer(delimiter)
-    return
-  end
   local cell = require("code-cells.api.cell").find_closest(delimiter)
   if not cell then return end
   cell:select(layer)
+end
+
+---@param delimiter string? Cell delimiter
+---@param layer cells.CellLayer Cell layer
+function M.textobject(delimiter, layer)
+  if layer == "inner" or layer == "core" then
+    textobject_inner(delimiter, layer)
+  else
+    textobject_outer(delimiter)
+  end
 end
 
 return M
