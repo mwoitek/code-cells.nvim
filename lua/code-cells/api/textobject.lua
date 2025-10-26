@@ -38,19 +38,33 @@ local function select_line_range(first, last)
 end
 
 ---@param delimiter string? Cell delimiter
-local function textobject_outer(delimiter)
-  local first_line ---@type integer?
-  local ref_line ---@type integer?
+---@param count integer? Count
+local function textobject_outer(delimiter, count)
+  count = count or vim.v.count1
+
+  local first ---@type integer?
+  local last ---@type integer?
 
   if vim.b._cells_obj_active then
-    first_line, ref_line = get_line_range_from_selection()
-    ref_line = ref_line + 1
+    first, last = get_line_range_from_selection()
   end
 
-  local cell = require("code-cells.api.cell").find_closest(delimiter, ref_line)
-  if not cell then return end
+  local i = 0
 
-  select_line_range(first_line or cell.first_line, cell.last_line)
+  while i < count do
+    local ref = last and last + 1 or fn.line(".")
+    local cell = require("code-cells.api.cell").find_closest(delimiter, ref)
+    if not cell then break end
+    first = first or cell.first_line
+    last = cell.last_line
+    i = i + 1
+  end
+
+  if i == 0 then return end
+
+  ---@cast first -?
+  ---@cast last -?
+  select_line_range(first, last)
 
   api.nvim_buf_set_var(0, "_cells_obj_active", true)
   api.nvim_create_autocmd("ModeChanged", {
