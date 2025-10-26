@@ -15,29 +15,61 @@ local function assert_mode(modes)
   assert(ok, "invalid mode")
 end
 
----@return integer
----@return integer
+---@return integer # Range's first line
+---@return integer # Range's last line
 local function get_line_range_from_selection()
   assert_mode("V")
   vim.cmd("normal! V")
   local _, first = unpack(fn.getcharpos("'<"))
   local _, last = unpack(fn.getcharpos("'>"))
+  vim.cmd("normal! gv")
   return first, last
 end
 
----@param first integer
----@param last integer
+---@param first integer Range's first line
+---@param last integer Range's last line
 local function select_line_range(first, last)
   assert_mode("n")
+  local last_col = fn.charcol({ last, "$" }) - 1
   api.nvim_win_set_cursor(0, { first, 0 })
   vim.cmd("normal! V")
-  local last_col = fn.charcol({ last, "$" }) - 2
   api.nvim_win_set_cursor(0, { last, last_col })
+end
+
+---@param delimiter string? Cell delimiter
+local function textobject_outer(delimiter)
+  local first_line ---@type integer?
+  local ref_line ---@type integer?
+
+  if vim.b._cells_obj_active then
+    first_line, ref_line = get_line_range_from_selection()
+    ref_line = ref_line + 1
+  end
+
+  local cell = require("code-cells.api.cell").find_closest(delimiter, ref_line)
+  if not cell then return end
+
+  vim.cmd.execute([["normal! \<Esc>"]])
+  select_line_range(first_line or cell.first_line, cell.last_line)
+
+  vim.b._cells_obj_active = true
+  api.nvim_create_autocmd("ModeChanged", {
+    pattern = "V*:*",
+    callback = function(ev)
+      api.nvim_buf_del_var(ev.buf, "_cells_obj_active")
+      return true
+    end,
+  })
 end
 
 ---@param delimiter string? Cell delimiter
 ---@param layer cells.CellLayer Cell layer
 function M.textobject(delimiter, layer)
+  -- TODO: improve
+  if layer == "outer" then
+    textobject_outer(delimiter)
+    return
+  end
   local cell = require("code-cells.api.cell").find_closest(delimiter)
   if not cell then return end
   cell:select(layer)
