@@ -37,63 +37,64 @@ local function select_line_range(first, last)
   api.nvim_win_set_cursor(0, { last, last_col })
 end
 
----@param delimiter string? Cell delimiter
+---@param layer cells.CellLayer Cell layer
 ---@param count integer? Count
-local function textobject_outer(delimiter, count)
-  count = count or vim.v.count1
+function M.textobject(layer, count)
+  local selected_count = vim.b._cells_selected_count or 0 ---@type integer
+  local last_layer = vim.b._cells_selected_layer ---@type cells.CellLayer?
 
-  local first ---@type integer?
-  local last ---@type integer?
+  local is_outer = layer == "outer"
+  local is_outer_again = is_outer and last_layer == "outer"
 
-  if vim.b._cells_obj_active then
-    first, last = get_line_range_from_selection()
+  count = is_outer and (count or vim.v.count1) or 1
+  local use_selection = selected_count > 1 or (selected_count == 1 and is_outer_again)
+
+  local first_line ---@type integer?
+  local last_line ---@type integer?
+  if use_selection then
+    first_line, last_line = get_line_range_from_selection()
   end
 
   local i = 0
-
   while i < count do
-    local ref = last and last + 1 or fn.line(".")
-    local cell = require("code-cells.api.cell").find_closest(delimiter, ref)
+    local ref = (is_outer and last_line) and last_line + 1 or fn.line(".")
+
+    local cell = require("code-cells.api.cell").find_closest(nil, ref)
     if not cell then break end
-    first = first or cell.first_line
-    last = cell.last_line
+
+    local cell_first, cell_last = cell:range(layer)
+    if not cell_first then break end
+
+    first_line = first_line or cell_first
+    last_line = cell_last
+
     i = i + 1
   end
 
   if i == 0 then return end
 
-  ---@cast first -?
-  ---@cast last -?
-  select_line_range(first, last)
+  ---@cast first_line -?
+  ---@cast last_line -?
+  select_line_range(first_line, last_line)
 
-  api.nvim_buf_set_var(0, "_cells_obj_active", true)
+  if use_selection then
+    if is_outer then selected_count = selected_count + (is_outer_again and i or i - 1) end
+  else
+    selected_count = i
+  end
+
+  api.nvim_buf_set_var(0, "_cells_selected_count", selected_count)
+  api.nvim_buf_set_var(0, "_cells_selected_layer", layer)
+
   api.nvim_create_autocmd("ModeChanged", {
     buffer = 0,
     callback = function(ev)
       if string.sub(ev.match, 1, 1) ~= "V" then return end
-      api.nvim_buf_del_var(ev.buf, "_cells_obj_active")
+      api.nvim_buf_del_var(ev.buf, "_cells_selected_count")
+      api.nvim_buf_del_var(ev.buf, "_cells_selected_layer")
       return true
     end,
   })
-end
-
----@param delimiter string? Cell delimiter
----@param layer cells.CellLayer Cell layer
-local function textobject_inner(delimiter, layer)
-  -- TODO: improve
-  local cell = require("code-cells.api.cell").find_closest(delimiter)
-  if not cell then return end
-  cell:select(layer)
-end
-
----@param delimiter string? Cell delimiter
----@param layer cells.CellLayer Cell layer
-function M.textobject(delimiter, layer)
-  if layer == "inner" or layer == "core" then
-    textobject_inner(delimiter, layer)
-  else
-    textobject_outer(delimiter)
-  end
 end
 
 return M

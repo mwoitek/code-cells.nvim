@@ -17,17 +17,17 @@ vim.keymap.set(
 vim.keymap.set(
   "x",
   "<Plug>(CellsObjOuter)",
-  function() require("code-cells.api.textobject").textobject(nil, "outer") end
+  function() require("code-cells.api.textobject").textobject("outer") end
 )
 vim.keymap.set(
   "x",
   "<Plug>(CellsObjInner)",
-  function() require("code-cells.api.textobject").textobject(nil, "inner") end
+  function() require("code-cells.api.textobject").textobject("inner") end
 )
 vim.keymap.set(
   "x",
   "<Plug>(CellsObjCore)",
-  function() require("code-cells.api.textobject").textobject(nil, "core") end
+  function() require("code-cells.api.textobject").textobject("core") end
 )
 vim.keymap.set("o", "<Plug>(CellsObjOuter)", "<Cmd>normal v<Plug>(CellsObjOuter)<CR>")
 vim.keymap.set("o", "<Plug>(CellsObjInner)", "<Cmd>normal v<Plug>(CellsObjInner)<CR>")
