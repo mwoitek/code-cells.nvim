@@ -3,17 +3,8 @@ local M = {}
 local api = vim.api
 local fn = vim.fn
 
----@param modes string|string[]
-local function assert_mode(modes)
-  local mode = api.nvim_get_mode().mode
-  local ok ---@type boolean
-  if type(modes) == "string" then
-    ok = modes == mode
-  else
-    ok = vim.tbl_contains(modes, mode)
-  end
-  assert(ok, "invalid mode")
-end
+---@param mode string
+local function assert_mode(mode) assert(api.nvim_get_mode().mode == mode, "invalid mode") end
 
 ---@return integer # Range's first line
 ---@return integer # Range's last line

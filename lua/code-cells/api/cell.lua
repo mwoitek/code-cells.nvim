@@ -131,24 +131,6 @@ function Cell:jump(layer, position)
   api.nvim_win_set_cursor(0, { line, 0 })
 end
 
----@param layer cells.CellLayer Cell layer
-function Cell:select(layer)
-  -- TODO: expand existing selection
-
-  local mode = api.nvim_get_mode().mode
-  if mode:lower() ~= "v" then return end
-  vim.cmd("normal! " .. mode)
-
-  local first, last = self:range(layer)
-  if not first then return end
-
-  api.nvim_win_set_cursor(0, { first, 0 })
-  vim.cmd("normal! V")
-
-  local last_col = fn.col({ last, "$" }) - 1
-  api.nvim_win_set_cursor(0, { last, last_col })
-end
-
 ---@param delimiter string? Cell delimiter
 ---@param line integer? Reference line
 ---@return cells.Cell? # Surrounding cell, or nil if there is none
